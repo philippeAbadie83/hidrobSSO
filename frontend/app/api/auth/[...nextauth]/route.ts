@@ -61,20 +61,23 @@ const authOptions: NextAuthOptions = {
         token.domain       = (profile.preferred_username || profile.email || "").split("@")[1];
       }
 
-      // Crear sesión Hidrobart en Redis (solo la primera vez)
-      if (account?.access_token && !token.hidrobartSessionId) {
+      // Crear sesión Hidrobart en Redis.
+      // Usa account.access_token en el primer login, o token.accessToken en
+      // refreshes posteriores — sesiones existentes se auto-sanan sin re-login.
+      const msToken = account?.access_token ?? (token.accessToken as string | undefined);
+      if (msToken && !token.hidrobartSessionId) {
         try {
           const res = await fetch(`${AUTH_API}/auth/ms-login`, {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ access_token: account.access_token }),
+            body:    JSON.stringify({ access_token: msToken }),
           });
           if (res.ok) {
-            const data             = await res.json();
+            const data               = await res.json();
             token.hidrobartSessionId = data.session_id;   // ← NUNCA exponer al cliente
             token.hidrobartRoles     = data.roles;
-            // Actualizar nombre con el que viene del Graph
             if (data.name) token.name = data.name;
+            console.log(`[Auth] sesión Hidrobart creada: ${data.email}`);
           } else {
             const txt = await res.text();
             console.error(`[Auth] ms-login ${res.status}: ${txt}`);
