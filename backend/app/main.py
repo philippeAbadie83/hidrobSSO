@@ -10,7 +10,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.routers import auth, users
+from app.routers import auth, users, sso_router as sso
 from app.services.redis_service import redis_service
 
 # Configurar logging
@@ -84,6 +84,7 @@ app.add_middleware(
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(sso.router)
 
 
 # ── Health & Info ─────────────────────────────────────────────────────────────

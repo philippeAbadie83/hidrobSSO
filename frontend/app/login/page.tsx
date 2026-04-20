@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import HidrobartLogo from "@/components/HidrobartLogo";
-import MicrosoftLogo from "@/components/MicrosoftLogo";
+import HidrobartLogo from "../../components/HidrobartLogo";
+import MicrosoftLogo from "../../components/MicrosoftLogo";
 import { Shield, Wifi, Globe, Lock } from "lucide-react";
 
-export default function LoginPage() {
+function LoginContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -241,5 +242,13 @@ function LoadingScreen() {
         <p className="text-white/50 text-sm">Verificando sesión...</p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-blue-950" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

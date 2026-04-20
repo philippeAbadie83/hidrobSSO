@@ -1,0 +1,52 @@
+# ── Secretos — NUNCA subir al repo ─────────────────────────
+.env
+.env.local
+.env.production
+.env*.local
+backend/.env
+frontend/.env.local
+
+# ── Node ────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+frontend/package-lock.json
+
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+backend/.venv/
+backend/venv/
+dist/
+*.pyc
+*.pyo
+
+# ── PM2 ─────────────────────────────────────────────────────
+.pm2/
+ecosystem.config.js.bak
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ─────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+
+# ── Build ───────────────────────────────────────────────────
+*.log
+.turbo/
+build/
+backend/.env.backup
+backend/.env
+frontend/.env.local
