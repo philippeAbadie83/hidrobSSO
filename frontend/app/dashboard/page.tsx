@@ -187,7 +187,7 @@ export default function DashboardPage() {
 
             // ── Link normal ──────────────────────────────────────────────
             return (
-              
+              <a
                 key={app.id}
                 href={app.url}
                 target={app.url !== "#" ? "_blank" : undefined}
