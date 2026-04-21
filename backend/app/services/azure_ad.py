@@ -185,7 +185,7 @@ class AzureADService:
         }
         org_roles = set()
         for group in groups:
-            name = group.get("displayName", "").lower()
+            name = (group.get("displayName") or "").lower()
             # Buscar coincidencias en el nombre del grupo
             for keyword, role in role_map.items():
                 if keyword in name:
