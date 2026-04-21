@@ -26,6 +26,7 @@ ALLOWED_APPS = {
     "costeo360": "https://costeo360.hidrobart.com/auth/sso",
     "cortex":    "https://cortex.hidrobart.com/auth/sso",
     "unidum":    "https://unidum.hidrobart.com/auth/sso",
+    "crm2":      "https://crm2.hidrobart.com/auth/sso",
 }
 
 # ── Schemas ───────────────────────────────────────────────────────────────────

@@ -16,7 +16,7 @@ const APPS = [
   { id: "unidum",    name: "UNIDUM Planificador",     sub: "unidum.hidrobart.com",     desc: "Planificador Hidrobart",              icon: "📅", color: "from-cyan-600 to-cyan-900",     url: "#",                               tag: "PROTOTIPO",   ssoId: null       },
   { id: "costeo",    name: "Costeo360",               sub: "costeo360.hidrobart.com",  desc: "Costeo Hidrobart",                    icon: "💰", color: "from-green-600 to-green-900",   url: "https://costeo360.hidrobart.com", tag: "ACTUALIZADO", ssoId: "costeo360" },
   { id: "crm1",      name: "CRM Pipeline",            sub: "crm.hidrobart.com",        desc: "CRM Pipeline — Hidrobart Idea",       icon: "🔗", color: "from-blue-600 to-blue-900",     url: "#",                               tag: "IDEA",        ssoId: null       },
-  { id: "crm2",      name: "CRM Hidrobart",           sub: "crm-hidrobart.com",        desc: "CRM Nuevo",                           icon: "🤝", color: "from-sky-600 to-sky-900",       url: "#",                               tag: "NUEVO",       ssoId: null       },
+  { id: "crm2",      name: "CRM Hidrobart",           sub: "crm2.hidrobart.com",       desc: "Pipeline de ventas · CRM v2",         icon: "🤝", color: "from-sky-600 to-sky-900",       url: "https://crm2.hidrobart.com",      tag: "NUEVO",       ssoId: "crm2"     },
 ];
 
 const DEPRECATED = [
