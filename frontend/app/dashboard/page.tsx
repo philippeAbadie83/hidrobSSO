@@ -1,51 +1,87 @@
 "use client";
-import { useState }                  from "react";
-import { useSession, signOut }       from "next-auth/react";
-import { useRouter }                 from "next/navigation";
-import { useEffect }                 from "react";
-import Image                         from "next/image";
-import { LogOut, Loader2 }           from "lucide-react";
+import { useState, useMemo }        from "react";
+import { useSession, signOut }      from "next-auth/react";
+import { useRouter }                from "next/navigation";
+import { useEffect }                from "react";
+import Image                        from "next/image";
+import { LogOut, Loader2 }          from "lucide-react";
+import { Montserrat }               from "next/font/google";
+import ALL_APPS                     from "@/data/apps.json";
 
-const LOGO = "https://hidrobartmedia.blob.core.windows.net/imgs/logos/imagotipo_blanco-01.png";
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400","500","600","700","800"] });
 
-// ssoId = app_id que espera el backend en /auth/sso-launch
-const APPS = [
-  { id: "hidrosso",   name: "HidroSSO",               sub: "hidrosso.hidrobart.com",   desc: "Login institucional unificado MS365",  icon: "🔐", color: "from-blue-700 to-blue-950",     url: "https://hidrosso.hidrobart.com",    tag: "",            ssoId: null       },
-  { id: "cortex",     name: "Cortex",                  sub: "cortex.hidrobart.com",     desc: "Cerebro de IA · Hidrobart",            icon: "🤖", color: "from-violet-600 to-violet-900", url: "https://cortex.hidrobart.com",      tag: "",            ssoId: null       },
-  { id: "superset",   name: "Dashboard Institucional", sub: "dashb.hidrobart.com",      desc: "Business Intelligence · Superset",     icon: "📊", color: "from-orange-600 to-orange-900", url: "https://dashb.hidrobart.com",       tag: "",            ssoId: null       },
-  { id: "unidum",     name: "UNIDUM Planificador",     sub: "unidum.hidrobart.com",     desc: "Planificador Hidrobart",               icon: "📅", color: "from-cyan-600 to-cyan-900",     url: "https://unidum.hidrobart.com",      tag: "PROTOTIPO",   ssoId: null       },
-  { id: "costeo",     name: "Costeo360",               sub: "costeo360.hidrobart.com",  desc: "Costeo Hidrobart",                     icon: "💰", color: "from-green-600 to-green-900",   url: "https://costeo360.hidrobart.com",   tag: "ACTUALIZADO", ssoId: "costeo360" },
-  { id: "crm2",       name: "CRM Hidrobart",           sub: "crm2.hidrobart.com",       desc: "Pipeline de ventas · CRM v2",          icon: "🤝", color: "from-sky-600 to-sky-900",       url: "https://crm2.hidrobart.com",        tag: "NUEVO",       ssoId: "crm2"     },
-  { id: "crm1",       name: "CRM Pipeline",            sub: "crm.hidrobart.com",        desc: "CRM Pipeline — Hidrobart Idea",        icon: "🔗", color: "from-blue-600 to-blue-900",     url: "#",                                 tag: "IDEA",        ssoId: null       },
-  { id: "hidroplus",  name: "Hidro+",                  sub: "hidroplus.hidrobart.com",  desc: "Portal Hidro+ · Acceso institucional", icon: "💧", color: "from-teal-600 to-teal-900",     url: "https://hidroplus.hidrobart.com",   tag: "",            ssoId: null       },
-];
+const LOGO    = "https://hidrobartmedia.blob.core.windows.net/imgs/logos/imagotipo_blanco-01.png";
+const PATTERN = "https://hidrobartmedia.blob.core.windows.net/imgs/hbPatrones/patr%C3%B3n-1.png";
 
-const DEPRECATED: { id: string; name: string; sub: string; desc: string; icon: string }[] = [];
+// ── Tipos ─────────────────────────────────────────────────────────────────────
+interface App {
+  id:     string;
+  name:   string;
+  sub:    string;
+  desc:   string;
+  icon:   string;
+  url:    string;
+  tag:    string;
+  ssoId:  string | null;
+  active: boolean;
+  tier:   "public" | "team" | "admin";
+  order:  number;
+}
 
+// ── Visibilidad por tier ───────────────────────────────────────────────────────
+function canSee(app: App, orgRoles: string[]): boolean {
+  if (app.tier === "public") return true;
+  if (app.tier === "team")   return orgRoles.some(r => ["Manager","Admin","SuperAdmin"].includes(r));
+  if (app.tier === "admin")  return orgRoles.some(r => ["Admin","SuperAdmin"].includes(r));
+  return true;
+}
+
+// ── Colores de íconos — paleta HB ─────────────────────────────────────────────
+const ICON_GRADIENT: Record<string, string> = {
+  hidrosso:  "linear-gradient(135deg, #13294B 0%, #2C5697 100%)",
+  cortex:    "linear-gradient(135deg, #3A5DAE 0%, #13294B 100%)",
+  superset:  "linear-gradient(135deg, #0072CE 0%, #3A5DAE 100%)",
+  unidum:    "linear-gradient(135deg, #6CACE4 0%, #3A5DAE 100%)",
+  costeo:    "linear-gradient(135deg, #2C5697 0%, #0072CE 100%)",
+  crm2:      "linear-gradient(135deg, #0072CE 0%, #13294B 100%)",
+  crm1:      "linear-gradient(135deg, #3A5DAE 0%, #6CACE4 100%)",
+  hidroplus: "linear-gradient(135deg, #6CACE4 0%, #2C5697 100%)",
+};
+
+// ── Estilos de badges ─────────────────────────────────────────────────────────
 const TAG_STYLES: Record<string, string> = {
-  ACTUALIZADO: "bg-green-500/20 text-green-300 border-green-500/30",
-  PROTOTIPO:   "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
-  IDEA:        "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  NUEVO:       "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  ACTUALIZADO: "bg-green-50 text-green-700 border-green-200",
+  PROTOTIPO:   "bg-yellow-50 text-yellow-700 border-yellow-200",
+  IDEA:        "bg-purple-50 text-purple-700 border-purple-200",
+  NUEVO:       "bg-blue-50 text-blue-700 border-blue-200",
+};
+
+const TIER_BADGE: Record<string, string> = {
+  team:  "bg-sky-50 text-[#3A5DAE] border-sky-200",
+  admin: "bg-red-50 text-red-600 border-red-200",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  SuperAdmin: "bg-red-500/20 text-red-300 border-red-400/30",
-  Admin:      "bg-orange-500/20 text-orange-300 border-orange-400/30",
-  Manager:    "bg-yellow-500/20 text-yellow-300 border-yellow-400/30",
-  Employee:   "bg-blue-500/20 text-blue-300 border-blue-400/30",
-  External:   "bg-gray-500/20 text-gray-300 border-gray-400/30",
+  SuperAdmin: "bg-red-500/20 text-red-300 border-red-400/40",
+  Admin:      "bg-orange-500/20 text-orange-300 border-orange-400/40",
+  Manager:    "bg-yellow-500/20 text-yellow-300 border-yellow-400/40",
+  Employee:   "bg-blue-500/20 text-blue-300 border-blue-400/40",
+  External:   "bg-gray-500/20 text-gray-300 border-gray-400/40",
 };
 
-function getInitials(name: string) {
-  return name?.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase() || "HB";
-}
+// ─────────────────────────────────────────────────────────────────────────────
 
-export default function DashboardPage() {
+export default function Dashboard2Page() {
   const { data: session, status } = useSession();
   const router                    = useRouter();
   const [launching, setLaunching] = useState<string | null>(null);
   const [ssoError,  setSsoError]  = useState<string | null>(null);
+
+  // Saludo según hora
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/login");
@@ -53,14 +89,23 @@ export default function DashboardPage() {
 
   if (status === "loading" || !session) {
     return (
-      <div className="min-h-screen bg-blue-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-white/20 border-t-cyan-400 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#13294B" }}>
+        <div className="w-10 h-10 border-2 border-white/20 border-t-[#6CACE4] rounded-full animate-spin" />
       </div>
     );
   }
 
-  const user     = session.user as any;
+  const user      = session.user as any;
   const orgRoles: string[] = user.roles?.org || [];
+  const isAdmin   = orgRoles.some(r => ["Admin","SuperAdmin"].includes(r));
+  const domain    = user.domain || user.email?.split("@")[1];
+
+  const APPS       = (ALL_APPS as App[])
+    .filter(app => app.active)
+    .filter(app => canSee(app, orgRoles))
+    .sort((a, b) => a.order - b.order);
+
+  const DEPRECATED = (ALL_APPS as App[]).filter(app => !app.active);
 
   async function handleSSOLaunch(appId: string, appName: string) {
     setLaunching(appId);
@@ -81,152 +126,207 @@ export default function DashboardPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-blue-950/80 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Image src={LOGO} alt="Hidrobart" width={120} height={30} className="object-contain" unoptimized priority />
-              <div className="w-px h-5 bg-white/20" />
-              <span className="text-white/50 text-sm font-semibold tracking-wide">hidroBIntel</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:block text-right">
-                <p className="text-white text-sm font-medium leading-none">{user.name?.split(" ")[0]}</p>
-                <p className="text-white/40 text-xs">{user.email}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
-                {getInitials(user.name || "")}
-              </div>
-              <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white/70 hover:text-white text-sm transition-all"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Salir</span>
-              </button>
-            </div>
+  // ── Card content reutilizable ─────────────────────────────────────────────
+  function CardContent({ app, isLaunching }: { app: App; isLaunching: boolean }) {
+    const showTier = isAdmin && app.tier !== "public";
+    return (
+      <>
+        {/* Ícono + badges */}
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-md flex-shrink-0"
+            style={{ background: ICON_GRADIENT[app.id] ?? ICON_GRADIENT.hidrosso }}
+          >
+            {isLaunching ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : app.icon}
+          </div>
+          <div className="flex flex-wrap justify-end gap-1 ml-2 mt-0.5">
+            {showTier && (
+              <span className={`text-[10px] px-2 py-0.5 rounded border font-bold ${TIER_BADGE[app.tier]}`}>
+                {app.tier === "team" ? "TEAM" : "ADMIN"}
+              </span>
+            )}
+            {app.ssoId && (
+              <span className="text-[10px] px-2 py-0.5 rounded border font-bold bg-[#eff6ff] text-[#0072CE] border-blue-200">
+                SSO
+              </span>
+            )}
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Bienvenida */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            Bienvenido, {user.name?.split(" ")[0]} 👋
-          </h1>
-          <p className="text-cyan-400 font-mono text-sm mt-1">
-            @{user.domain || user.email?.split("@")[1]}
-          </p>
-        </div>
+        {/* Info */}
+        <p className="text-[15px] font-bold text-[#13294B] mb-0.5">{app.name}</p>
+        <p className="text-[11px] font-semibold text-slate-500 mb-1.5">{app.sub}</p>
+        <p className="text-[13px] font-medium text-slate-600 leading-relaxed">{app.desc}</p>
 
-        {/* Error SSO */}
-        {ssoError && (
-          <div className="mb-4 p-4 bg-red-500/15 border border-red-500/30 rounded-xl text-red-300 text-sm flex items-center justify-between">
-            <span>⚠️ {ssoError}</span>
-            <button onClick={() => setSsoError(null)} className="ml-4 text-red-400 hover:text-red-200">✕</button>
-          </div>
+        {app.tag && (
+          <span className={`inline-block mt-3 text-[10px] px-2 py-0.5 rounded border font-bold ${TAG_STYLES[app.tag] ?? ""}`}>
+            {app.tag}
+          </span>
         )}
+      </>
+    );
+  }
 
-        {/* Perfil + roles */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-blue-600/50 border border-white/20 flex items-center justify-center text-white text-xl font-bold">
-              {getInitials(user.name || "")}
-            </div>
-            <div>
-              <p className="text-white font-semibold">{user.name}</p>
-              <p className="text-white/40 text-sm">{user.email}</p>
-            </div>
+  return (
+    <div className={montserrat.className} style={{ minHeight: "100vh", background: "#c8d5e8" }}>
+
+      {/* ══ HEADER ZONE ══════════════════════════════════════════════════════ */}
+      <div
+        style={{
+          background:   "linear-gradient(180deg, #13294B 0%, #1a3a6b 100%)",
+          boxShadow:    "0 6px 24px rgba(19,41,75,0.45)",
+          position:     "relative",
+          overflow:     "hidden",
+          paddingBottom: "24px",
+        }}
+      >
+        {/* Patrón hexagonal */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: `url('${PATTERN}')`,
+          backgroundSize: "260px", backgroundRepeat: "repeat",
+          opacity: 0.05,
+        }} />
+
+        {/* Topbar */}
+        <div className="relative z-10 flex items-center justify-between px-8 h-16 border-b border-white/[0.08]">
+
+          {/* Marca */}
+          <div className="flex items-center gap-3.5">
+            <Image src={LOGO} alt="Hidrobart" width={120} height={30} className="object-contain" unoptimized priority />
+            <div className="w-px h-5 bg-white/20" />
+            <span className="text-white font-extrabold text-lg tracking-wide uppercase">
+              hidro<span style={{ color: "#6CACE4" }}>BI</span>ntel
+            </span>
           </div>
-          <div className="sm:ml-auto flex flex-wrap gap-2">
-            {orgRoles.map((role) => (
-              <span key={role} className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${ROLE_COLORS[role] || ROLE_COLORS.Employee}`}>
+
+          {/* Usuario + roles + salir */}
+          <div className="flex items-center gap-2.5">
+            <span className="text-white text-sm font-semibold mr-1 hidden sm:block">
+              {user.name?.split(" ")[0]}
+            </span>
+            {orgRoles.map(role => (
+              <span key={role} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${ROLE_COLORS[role] ?? ROLE_COLORS.Employee}`}>
                 🛡 {role}
               </span>
             ))}
+            <div className="w-px h-4 bg-white/20 mx-1" />
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white/60 hover:text-white text-xs font-semibold transition-all"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Salir</span>
+            </button>
           </div>
         </div>
 
-        {/* Apps */}
-        <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-4">Sistemas activos</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {APPS.map((app) => {
+        {/* Bienvenida — una sola línea compacta */}
+        <div className="relative z-10 flex items-baseline gap-2.5 flex-wrap px-8 pt-4">
+          <p className="text-base font-semibold" style={{ color: "#6CACE4" }}>
+            {greeting},
+          </p>
+          <h1 className="text-xl font-extrabold text-white tracking-tight">
+            {user.name?.split(" ")[0]} 👋
+          </h1>
+          <span className="text-white/25 text-sm">·</span>
+          <span className="text-white/40 text-sm font-medium">@{domain}</span>
+        </div>
+      </div>
+
+      {/* ══ CONTENT ZONE ═════════════════════════════════════════════════════ */}
+      <main className="px-8 pt-8 pb-12">
+
+        {/* Error SSO */}
+        {ssoError && (
+          <div className="mb-5 p-4 rounded-xl text-sm flex items-center justify-between"
+            style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#dc2626" }}>
+            <span>⚠️ {ssoError}</span>
+            <button onClick={() => setSsoError(null)} className="ml-4 opacity-60 hover:opacity-100">✕</button>
+          </div>
+        )}
+
+        {/* Label sección */}
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-5 pl-3 text-[#13294B]/70"
+          style={{ borderLeft: "3px solid #6CACE4" }}>
+          Sistemas activos
+        </p>
+
+        {/* Grid de apps */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 mb-8">
+          {APPS.map(app => {
             const isLaunching = launching === app.ssoId;
+            const baseCard = "bg-white rounded-2xl p-5 transition-all duration-200 cursor-pointer block text-left w-full";
+            const hoverCard = "hover:-translate-y-0.5 hover:shadow-xl hover:border-[#3A5DAE]";
+            const cardStyle = {
+              border:    "1px solid #e2e8f0",
+              boxShadow: "0 2px 8px rgba(19,41,75,0.08), 0 1px 2px rgba(19,41,75,0.05)",
+            };
 
             if (app.ssoId) {
-              // ── Botón SSO ────────────────────────────────────────────────
               return (
                 <button
                   key={app.id}
                   onClick={() => handleSSOLaunch(app.ssoId!, app.name)}
                   disabled={!!launching}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/25 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-left w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                  className={`${baseCard} ${hoverCard} disabled:opacity-60 disabled:cursor-not-allowed`}
+                  style={cardStyle}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-3 shadow-md text-2xl`}>
-                    {isLaunching ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : app.icon}
-                  </div>
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-white font-semibold mb-0.5">{app.name}</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold ml-2 shrink-0">SSO</span>
-                  </div>
-                  <p className="text-white/30 text-xs font-mono mb-1">{app.sub}</p>
-                  <p className="text-white/50 text-sm">{app.desc}</p>
-                  {app.tag && (
-                    <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded border font-semibold ${TAG_STYLES[app.tag]}`}>
-                      {app.tag}
-                    </span>
-                  )}
+                  <CardContent app={app} isLaunching={isLaunching} />
                 </button>
               );
             }
-
-            // ── Link normal ──────────────────────────────────────────────
             return (
               <a
                 key={app.id}
                 href={app.url}
                 target={app.url !== "#" ? "_blank" : undefined}
                 rel="noreferrer"
-                className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/25 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 block"
-                style={{ textDecoration: "none", color: "inherit" }}
+                className={`${baseCard} ${hoverCard}`}
+                style={{ ...cardStyle, textDecoration: "none" }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-3 shadow-md text-2xl`}>
-                  {app.icon}
-                </div>
-                <h3 className="text-white font-semibold mb-0.5">{app.name}</h3>
-                <p className="text-white/30 text-xs font-mono mb-1">{app.sub}</p>
-                <p className="text-white/50 text-sm">{app.desc}</p>
-                {app.tag && (
-                  <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded border font-semibold ${TAG_STYLES[app.tag]}`}>
-                    {app.tag}
-                  </span>
-                )}
+                <CardContent app={app} isLaunching={false} />
               </a>
             );
           })}
         </div>
 
+        {/* Nota admin — solo visible para admins */}
+        {isAdmin && (
+          <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-8 text-xs font-semibold"
+            style={{ background: "rgba(19,41,75,0.07)", border: "1px solid rgba(19,41,75,0.12)", color: "#3A5DAE" }}>
+            <span>👁</span>
+            <span>Vista SuperAdmin — ves todas las apps incluyendo las marcadas TEAM y ADMIN</span>
+          </div>
+        )}
+
         {/* Legado */}
-        <p className="text-white/30 text-xs font-bold uppercase tracking-widest mb-4">Legado / Deprecado</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {DEPRECATED.map((app) => (
-            <div key={app.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 opacity-40 cursor-not-allowed">
-              <div className="w-12 h-12 rounded-xl bg-gray-600 flex items-center justify-center mb-3 shadow-md text-2xl">
-                {app.icon}
-              </div>
-              <h3 className="text-white font-semibold mb-0.5">{app.name}</h3>
-              <p className="text-white/30 text-xs font-mono mb-1">{app.sub}</p>
-              <p className="text-white/50 text-sm">{app.desc}</p>
-              <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded border font-semibold bg-gray-500/20 text-gray-400 border-gray-500/30">
-                DEPRECATED
-              </span>
+        {DEPRECATED.length > 0 && (
+          <>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-4 pl-3 text-[#13294B]/40"
+              style={{ borderLeft: "3px solid #94a3b8" }}>
+              Legado / Deprecado
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+              {DEPRECATED.map(app => (
+                <div key={app.id} className="bg-white rounded-2xl p-5 opacity-40 cursor-not-allowed"
+                  style={{ border: "1px solid #e2e8f0" }}>
+                  <div className="w-12 h-12 rounded-xl bg-slate-400 flex items-center justify-center text-2xl mb-3">
+                    {app.icon}
+                  </div>
+                  <p className="text-sm font-bold text-[#13294B] mb-0.5">{app.name}</p>
+                  <p className="text-[11px] text-slate-400 mb-1.5">{app.sub}</p>
+                  <p className="text-xs text-slate-400">{app.desc}</p>
+                  <span className="inline-block mt-3 text-[10px] px-2 py-0.5 rounded border font-bold bg-slate-50 text-slate-400 border-slate-200">
+                    DEPRECATED
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
+
       </main>
     </div>
   );
