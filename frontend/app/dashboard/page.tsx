@@ -10,18 +10,17 @@ const LOGO = "https://hidrobartmedia.blob.core.windows.net/imgs/logos/imagotipo_
 
 // ssoId = app_id que espera el backend en /auth/sso-launch
 const APPS = [
-  { id: "hidrosso",  name: "HidroSSO",               sub: "hidrosso.hidrobart.com",   desc: "Login institucional unificado MS365", icon: "🔐", color: "from-blue-700 to-blue-950",     url: "https://hidrosso.hidrobart.com",  tag: "",            ssoId: null       },
-  { id: "cortex",    name: "Cortex",                  sub: "cortex.hidrobart.com",     desc: "Agentes IA · LibreChat",              icon: "🤖", color: "from-violet-600 to-violet-900", url: "https://cortex.hidrobart.com",    tag: "",            ssoId: null       },
-  { id: "superset",  name: "Dashboard Institucional", sub: "superset",                 desc: "Business Intelligence · Superset",    icon: "📊", color: "from-orange-600 to-orange-900", url: "#",                               tag: "",            ssoId: null       },
-  { id: "unidum",    name: "UNIDUM Planificador",     sub: "unidum.hidrobart.com",     desc: "Planificador Hidrobart",              icon: "📅", color: "from-cyan-600 to-cyan-900",     url: "#",                               tag: "PROTOTIPO",   ssoId: null       },
-  { id: "costeo",    name: "Costeo360",               sub: "costeo360.hidrobart.com",  desc: "Costeo Hidrobart",                    icon: "💰", color: "from-green-600 to-green-900",   url: "https://costeo360.hidrobart.com", tag: "ACTUALIZADO", ssoId: "costeo360" },
-  { id: "crm1",      name: "CRM Pipeline",            sub: "crm.hidrobart.com",        desc: "CRM Pipeline — Hidrobart Idea",       icon: "🔗", color: "from-blue-600 to-blue-900",     url: "#",                               tag: "IDEA",        ssoId: null       },
-  { id: "crm2",      name: "CRM Hidrobart",           sub: "crm2.hidrobart.com",       desc: "Pipeline de ventas · CRM v2",         icon: "🤝", color: "from-sky-600 to-sky-900",       url: "https://crm2.hidrobart.com",      tag: "NUEVO",       ssoId: "crm2"     },
+  { id: "hidrosso",   name: "HidroSSO",               sub: "hidrosso.hidrobart.com",   desc: "Login institucional unificado MS365",  icon: "🔐", color: "from-blue-700 to-blue-950",     url: "https://hidrosso.hidrobart.com",    tag: "",            ssoId: null       },
+  { id: "cortex",     name: "Cortex",                  sub: "cortex.hidrobart.com",     desc: "Cerebro de IA · Hidrobart",            icon: "🤖", color: "from-violet-600 to-violet-900", url: "https://cortex.hidrobart.com",      tag: "",            ssoId: null       },
+  { id: "superset",   name: "Dashboard Institucional", sub: "dashb.hidrobart.com",      desc: "Business Intelligence · Superset",     icon: "📊", color: "from-orange-600 to-orange-900", url: "https://dashb.hidrobart.com",       tag: "",            ssoId: null       },
+  { id: "unidum",     name: "UNIDUM Planificador",     sub: "unidum.hidrobart.com",     desc: "Planificador Hidrobart",               icon: "📅", color: "from-cyan-600 to-cyan-900",     url: "https://unidum.hidrobart.com",      tag: "PROTOTIPO",   ssoId: null       },
+  { id: "costeo",     name: "Costeo360",               sub: "costeo360.hidrobart.com",  desc: "Costeo Hidrobart",                     icon: "💰", color: "from-green-600 to-green-900",   url: "https://costeo360.hidrobart.com",   tag: "ACTUALIZADO", ssoId: "costeo360" },
+  { id: "crm2",       name: "CRM Hidrobart",           sub: "crm2.hidrobart.com",       desc: "Pipeline de ventas · CRM v2",          icon: "🤝", color: "from-sky-600 to-sky-900",       url: "https://crm2.hidrobart.com",        tag: "NUEVO",       ssoId: "crm2"     },
+  { id: "crm1",       name: "CRM Pipeline",            sub: "crm.hidrobart.com",        desc: "CRM Pipeline — Hidrobart Idea",        icon: "🔗", color: "from-blue-600 to-blue-900",     url: "#",                                 tag: "IDEA",        ssoId: null       },
+  { id: "hidroplus",  name: "Hidro+",                  sub: "hidroplus.hidrobart.com",  desc: "Portal Hidro+ · Acceso institucional", icon: "💧", color: "from-teal-600 to-teal-900",     url: "https://hidroplus.hidrobart.com",   tag: "",            ssoId: null       },
 ];
 
-const DEPRECATED = [
-  { id: "hidroplus", name: "HIDRO+", sub: "hidroplus (antiguo)", desc: "Sistema legacy — en proceso de retiro", icon: "💧" },
-];
+const DEPRECATED: { id: string; name: string; sub: string; desc: string; icon: string }[] = [];
 
 const TAG_STYLES: Record<string, string> = {
   ACTUALIZADO: "bg-green-500/20 text-green-300 border-green-500/30",

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HidroSSO — Dashboard Redesign Preview v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── TOKENS HIDROBART ── */
+    :root {
+      --hb-carbon:          #13294B;
+      --hb-blue:            #3A5DAE;
+      --hb-celeste:         #6CACE4;
+      --hb-gray:            #3F4444;
+      --hb-blue-resin:      #2C5697;
+      --hb-blue-flow:       #0072CE;
+      --hb-celeste-calypso: #DDE5ED;
+      --content-bg:         #c8d5e8;   /* más saturado — contrasta con tarjetas blancas */
+      --border:             #e2e8f0;
+      --text-muted:         #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--content-bg);
+      color: var(--hb-gray);
+      min-height: 100vh;
+    }
+
+    /* ══ HEADER ZONE ════════════════════════════════════════════════════════ */
+    .hdr {
+      background: linear-gradient(180deg, #13294B 0%, #1a3a6b 100%);
+      border-bottom: none;
+      box-shadow: 0 6px 24px rgba(19,41,75,0.45);
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 28px;
+    }
+    .hdr::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://hidrobartmedia.blob.core.windows.net/imgs/hbPatrones/patr%C3%B3n-1.png');
+      background-size: 260px; background-repeat: repeat;
+      opacity: 0.05; pointer-events: none;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 14px; }
+    .topbar-brand img { height: 30px; object-fit: contain; }
+    .topbar-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
+    .topbar-appname {
+      font-size: 18px; font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Derecha del topbar: nombre + roles + salir */
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .topbar-user {
+      font-size: 13px; font-weight: 600; color: white;
+      margin-right: 4px;
+    }
+
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; border: 1px solid;
+      letter-spacing: 0.3px;
+    }
+    .role-superadmin { background: rgba(239,68,68,0.18); color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+    .role-admin      { background: rgba(249,115,22,0.18); color: #fdba74; border-color: rgba(249,115,22,0.35); }
+    .role-manager    { background: rgba(234,179,8,0.18);  color: #fde047; border-color: rgba(234,179,8,0.35); }
+    .role-employee   { background: rgba(59,130,246,0.18); color: #93c5fd; border-color: rgba(59,130,246,0.35); }
+
+    .topbar-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.15); margin: 0 4px; }
+
+    .btn-salir {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 600;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-salir:hover { background: rgba(255,255,255,0.14); color: white; }
+
+    /* Bienvenida */
+    .welcome {
+      position: relative; z-index: 2;
+      padding: 16px 40px 0;
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    }
+    .welcome-h1 {
+      font-size: 17px; font-weight: 700; color: white;
+      letter-spacing: 0.1px; white-space: nowrap;
+    }
+    .welcome-h1 .greeting { color: var(--hb-celeste); font-weight: 600; }
+    .welcome-domain {
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.35);
+    }
+    .welcome-sep { color: rgba(255,255,255,0.2); font-size: 13px; }
+
+    /* ══ CONTENT ZONE ═══════════════════════════════════════════════════════ */
+    .content {
+      padding: 32px 40px 48px;
+    }
+
+    .section-label {
+      font-size: 10px; font-weight: 700; color: var(--hb-carbon);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      padding-left: 12px;
+      border-left: 3px solid var(--hb-celeste);
+      margin-bottom: 18px;
+      opacity: 0.7;
+    }
+
+    /* Grid de apps */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    /* Tarjeta de app */
+    .app-card {
+      background: white;
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 14px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      box-shadow: 0 2px 8px rgba(19,41,75,0.1), 0 1px 2px rgba(19,41,75,0.06);
+      position: relative;
+    }
+    .app-card:hover {
+      border-color: var(--hb-blue);
+      box-shadow: 0 8px 24px rgba(19,41,75,0.18);
+      transform: translateY(-3px);
+    }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    }
+    .card-badges { display: flex; gap: 5px; align-items: flex-start; flex-wrap: wrap; justify-content: flex-end; max-width: 120px; }
+
+    .badge-sso {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+      background: rgba(0,114,206,0.1); color: var(--hb-blue-flow);
+      border: 1px solid rgba(0,114,206,0.25);
+    }
+    .badge-tag {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+      border: 1px solid;
+    }
+    .tag-actualizado { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .tag-prototipo   { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .tag-idea        { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+    .tag-nuevo       { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .tag-team        { background: rgba(108,172,228,0.1); color: var(--hb-blue); border-color: rgba(108,172,228,0.35); }
+    .tag-admin-only  { background: rgba(239,68,68,0.08); color: #dc2626; border-color: rgba(239,68,68,0.25); }
+
+    .card-name {
+      font-size: 14px; font-weight: 700;
+      color: var(--hb-carbon); margin-bottom: 3px;
+    }
+    .card-domain {
+      font-size: 11px; font-weight: 500;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 12px; color: #64748b; line-height: 1.5;
+    }
+
+    /* Colores de íconos — paleta HB */
+    .icon-hidrosso  { background: linear-gradient(135deg, #13294B 0%, #2C5697 100%); }
+    .icon-cortex    { background: linear-gradient(135deg, #3A5DAE 0%, #13294B 100%); }
+    .icon-dashboard { background: linear-gradient(135deg, #0072CE 0%, #3A5DAE 100%); }
+    .icon-unidum    { background: linear-gradient(135deg, #6CACE4 0%, #3A5DAE 100%); }
+    .icon-costeo    { background: linear-gradient(135deg, #2C5697 0%, #0072CE 100%); }
+    .icon-crm2      { background: linear-gradient(135deg, #0072CE 0%, #13294B 100%); }
+    .icon-crm1      { background: linear-gradient(135deg, #3A5DAE 0%, #6CACE4 100%); }
+    .icon-hidroplus { background: linear-gradient(135deg, #6CACE4 0%, #2C5697 100%); }
+
+    /* Nota admin */
+    .admin-note {
+      background: rgba(19,41,75,0.07);
+      border: 1px solid rgba(19,41,75,0.12);
+      border-radius: 10px; padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 28px;
+    }
+    .admin-note span { font-size: 11px; color: var(--hb-blue); font-weight: 600; }
+
+    /* Preview banner */
+    .preview-banner {
+      background: linear-gradient(90deg, var(--hb-blue) 0%, var(--hb-blue-flow) 100%);
+      color: white; text-align: center; padding: 9px 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+    }
+    .preview-banner em { opacity: 0.7; font-style: normal; font-weight: 400; margin-left: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="preview-banner">
+  PREVIEW v2 — HidroSSO Dashboard Rediseño
+  <em>Solo visualización · aplica spec Hidrobart v1.1 · Montserrat</em>
+</div>
+
+<!-- ══ HEADER ZONE ════════════════════════════════════════════════════════ -->
+<div class="hdr">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img src="https://hidrobartmedia.blob.core.windows.net/imgs/logos/imagotipo_blanco-01.png" alt="Hidrobart" />
+      <div class="topbar-divider"></div>
+      <span class="topbar-appname">hidro<span style="color:#6CACE4">BI</span>ntel</span>
+    </div>
+
+    <div class="topbar-right">
+      <span class="topbar-user">Philippe</span>
+      <span class="role-badge role-superadmin">🛡 SuperAdmin</span>
+      <span class="role-badge role-admin">🛡 Admin</span>
+      <div class="topbar-sep"></div>
+      <button class="btn-salir">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Salir
+      </button>
+    </div>
+  </div>
+
+  <!-- Bienvenida -->
+  <div class="welcome">
+    <div class="welcome-h1"><span class="greeting" id="greeting">Buenas tardes</span>, Philippe 👋</div>
+    <span class="welcome-sep">·</span>
+    <div class="welcome-domain">@hidrobart.com</div>
+  </div>
+
+</div>
+
+<!-- ══ CONTENT ZONE ═══════════════════════════════════════════════════════ -->
+<div class="content">
+
+  <div class="section-label">Sistemas activos</div>
+
+  <div class="apps-grid">
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-hidrosso">🔐</div>
+        <div class="card-badges"></div>
+      </div>
+      <div class="card-name">HidroSSO</div>
+      <div class="card-domain">hidrosso.hidrobart.com</div>
+      <div class="card-desc">Login institucional unificado MS365</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-cortex">🤖</div>
+        <div class="card-badges"></div>
+      </div>
+      <div class="card-name">Cortex</div>
+      <div class="card-domain">cortex.hidrobart.com</div>
+      <div class="card-desc">Cerebro de IA · Hidrobart</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-dashboard">📊</div>
+        <div class="card-badges">
+          <span class="badge-tag tag-team">TEAM</span>
+        </div>
+      </div>
+      <div class="card-name">Dashboard Institucional</div>
+      <div class="card-domain">dashb.hidrobart.com</div>
+      <div class="card-desc">Business Intelligence · Superset</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-unidum">📅</div>
+        <div class="card-badges">
+          <span class="badge-tag tag-admin-only">ADMIN</span>
+          <span class="badge-tag tag-prototipo">PROTOTIPO</span>
+        </div>
+      </div>
+      <div class="card-name">UNIDUM Planificador</div>
+      <div class="card-domain">unidum.hidrobart.com</div>
+      <div class="card-desc">Planificador Hidrobart</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-costeo">💰</div>
+        <div class="card-badges">
+          <span class="badge-sso">SSO</span>
+          <span class="badge-tag tag-actualizado">ACTUALIZADO</span>
+        </div>
+      </div>
+      <div class="card-name">Costeo360</div>
+      <div class="card-domain">costeo360.hidrobart.com</div>
+      <div class="card-desc">Costeo Hidrobart</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-crm2">🤝</div>
+        <div class="card-badges">
+          <span class="badge-sso">SSO</span>
+          <span class="badge-tag tag-team">TEAM</span>
+          <span class="badge-tag tag-nuevo">NUEVO</span>
+        </div>
+      </div>
+      <div class="card-name">CRM Hidrobart</div>
+      <div class="card-domain">crm2.hidrobart.com</div>
+      <div class="card-desc">Pipeline de ventas · CRM v2</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-crm1">🔗</div>
+        <div class="card-badges">
+          <span class="badge-tag tag-admin-only">ADMIN</span>
+          <span class="badge-tag tag-idea">IDEA</span>
+        </div>
+      </div>
+      <div class="card-name">CRM Pipeline</div>
+      <div class="card-domain">crm.hidrobart.com</div>
+      <div class="card-desc">CRM Pipeline — Hidrobart Idea</div>
+    </a>
+
+    <a class="app-card" href="#">
+      <div class="card-header">
+        <div class="card-icon icon-hidroplus">💧</div>
+        <div class="card-badges"></div>
+      </div>
+      <div class="card-name">Hidro+</div>
+      <div class="card-domain">hidroplus.hidrobart.com</div>
+      <div class="card-desc">Portal Hidro+ · Acceso institucional</div>
+    </a>
+
+  </div>
+
+  <div class="admin-note">
+    <span>👁 Vista SuperAdmin — ves todas las apps incluyendo las marcadas TEAM y ADMIN</span>
+  </div>
+
+</div>
+
+<script>
+  // Saludo según hora
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+  document.getElementById('greeting').textContent = g;
+</script>
+
+</body>
+</html>
