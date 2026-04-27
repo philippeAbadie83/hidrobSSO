@@ -1,11 +1,17 @@
 """
 Servicio Redis — gestión de sesiones y caché de roles
 Redis NEW dedicado a auth (hidrobart-auth-redis.redis.cache.windows.net)
+
+NOTA: Azure Cache for Redis (Premium/Enterprise) usa protocolo OSS Cluster
+aunque sea un solo shard. Se usa RedisCluster para manejar MOVED correctamente.
+Si en algún momento se migra a un Redis standalone sin cluster, cambiar
+USE_CLUSTER=False en settings o reemplazar por aioredis.Redis estándar.
 """
 import json
 import redis.asyncio as aioredis
+from redis.asyncio.cluster import RedisCluster
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Union
 import logging
 
 from app.core.config import settings
@@ -15,21 +21,39 @@ logger = logging.getLogger(__name__)
 
 class RedisService:
     def __init__(self):
-        self._client: Optional[aioredis.Redis] = None
+        self._client: Optional[Union[RedisCluster, aioredis.Redis]] = None
 
-    async def get_client(self) -> aioredis.Redis:
+    async def get_client(self) -> Union[RedisCluster, aioredis.Redis]:
         if self._client is None:
-            self._client = aioredis.Redis(
-                host=settings.REDIS_HOST,
-                port=settings.REDIS_PORT,
-                password=settings.REDIS_PASSWORD,
-                ssl=settings.REDIS_SSL,
-                db=settings.REDIS_DB,
-                decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5,
-                retry_on_timeout=True,
-            )
+            use_cluster = getattr(settings, "REDIS_CLUSTER_MODE", True)
+            if use_cluster:
+                # Azure Cache for Redis (Premium/Enterprise) — modo cluster OSS
+                self._client = RedisCluster(
+                    host=settings.REDIS_HOST,
+                    port=settings.REDIS_PORT,
+                    password=settings.REDIS_PASSWORD,
+                    ssl=settings.REDIS_SSL,
+                    ssl_cert_reqs=None,          # Azure usa certs internos
+                    decode_responses=True,
+                    skip_full_coverage_check=True,  # necesario en Azure
+                    socket_connect_timeout=5,
+                    socket_timeout=5,
+                )
+                logger.info("Redis: conectado en modo CLUSTER")
+            else:
+                # Redis standalone (desarrollo local o Azure sin cluster)
+                self._client = aioredis.Redis(
+                    host=settings.REDIS_HOST,
+                    port=settings.REDIS_PORT,
+                    password=settings.REDIS_PASSWORD,
+                    ssl=settings.REDIS_SSL,
+                    db=settings.REDIS_DB,
+                    decode_responses=True,
+                    socket_connect_timeout=5,
+                    socket_timeout=5,
+                    retry_on_timeout=True,
+                )
+                logger.info("Redis: conectado en modo STANDALONE")
         return self._client
 
     def _session_key(self, session_id: str) -> str:

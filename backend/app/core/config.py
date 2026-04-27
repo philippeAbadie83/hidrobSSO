@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     REDIS_SESSION_PREFIX: str = "session:"
     REDIS_ROLES_PREFIX: str = "roles:"
     REDIS_REFRESH_PREFIX: str = "refresh:"
+    # True  = Azure Premium/Enterprise (OSS Cluster mode)
+    # False = Redis standalone (local dev o Azure sin cluster)
+    REDIS_CLUSTER_MODE: bool = True
 
     # ── CORS / Apps permitidas ────────────────────────────────────────────────
     ALLOWED_ORIGINS: List[str] = [
