@@ -153,7 +153,12 @@ async def sso_exchange(lt: str = Query(...)):
     if not raw:
         raise HTTPException(status_code=401, detail="Launch token expirado o ya usado")
 
-    await client.delete(key)
+    try:
+        await client.delete(key)
+    except Exception as e:
+        # Azure Cache for Redis puede responder MOVED en cluster mode.
+        # El token tiene TTL de 60s — expirará solo. Continuamos igual.
+        logger.warning(f"sso-exchange: no se pudo borrar lt (expirará en {LAUNCH_TTL}s): {e}")
     data = json.loads(raw)
     logger.info(f"sso-exchange OK: app={data.get('app_id')}")
     return ExchangeResponse(session_id=data["session_id"])
