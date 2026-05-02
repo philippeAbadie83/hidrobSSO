@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HidroSSO Dashboard — Schema &amp; Design Spec</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --carbon:   #13294B;
+      --azul-hb:  #3A5DAE;
+      --celeste:  #6CACE4;
+      --resina:   #2C5697;
+      --flow:     #0072CE;
+      --content:  #c8d5e8;
+      --white:    #ffffff;
+      --text-main:#1e293b;
+      --text-muted:#64748b;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f0f4fa;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .spec-header {
+      background: linear-gradient(160deg, var(--carbon) 0%, #1a3a6b 100%);
+      padding: 48px 64px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .spec-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='70'%3E%3Cpolygon points='30,2 58,17 58,53 30,68 2,53 2,17' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 60px;
+      opacity: 0.04;
+    }
+    .spec-header-inner { position: relative; z-index: 1; }
+    .spec-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108,172,228,0.15);
+      border: 1px solid rgba(108,172,228,0.35);
+      color: var(--celeste);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .spec-header h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .spec-header h1 .bi { color: var(--celeste); }
+    .spec-header .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+    .spec-header .meta span { display: flex; align-items: center; gap: 6px; }
+    .spec-header .meta strong { color: rgba(255,255,255,0.7); }
+
+    /* ── Nav tabs ──────────────────────────────────────────────────────────── */
+    .nav-bar {
+      background: var(--carbon);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 64px;
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+    }
+    .nav-bar a {
+      color: rgba(255,255,255,0.45);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 16px;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .nav-bar a:hover { color: white; border-bottom-color: var(--celeste); }
+
+    /* ── Page layout ─────────────────────────────────────────────────────── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── Sections ─────────────────────────────────────────────────────────── */
+    .section { margin-bottom: 64px; }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-label .num {
+      width: 32px; height: 32px;
+      background: var(--carbon);
+      color: var(--celeste);
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-label h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--carbon);
+      letter-spacing: -0.01em;
+    }
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--azul-hb) 0%, transparent 80%);
+      margin-bottom: 28px;
+      opacity: 0.25;
+    }
+
+    p { color: var(--text-muted); font-size: 14px; line-height: 1.75; margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Cards ─────────────────────────────────────────────────────────────── */
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 2px 8px rgba(19,41,75,0.06), 0 1px 2px rgba(19,41,75,0.04);
+    }
+
+    /* ── Tables ─────────────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #f8fafc; }
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+    td { padding: 11px 16px; color: #374151; vertical-align: middle; }
+    td code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--resina);
+    }
+    td .check { color: #16a34a; font-size: 15px; }
+    td .cross { color: #94a3b8; font-size: 15px; }
+
+    /* ── Code block ─────────────────────────────────────────────────────────── */
+    pre {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e2e8f0;
+    }
+    pre .kw   { color: #7dd3fc; }
+    pre .str  { color: #86efac; }
+    pre .num  { color: #fca5a5; }
+    pre .cmt  { color: #475569; font-style: italic; }
+    pre .key  { color: #c4b5fd; }
+    pre .fn   { color: #fcd34d; }
+    pre .type { color: #6ee7b7; }
+
+    /* ── Callout ─────────────────────────────────────────────────────────────── */
+    .callout {
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .callout.warn    { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+    .callout .icon   { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .callout strong  { font-weight: 700; }
+
+    /* ── Color swatches ─────────────────────────────────────────────────────── */
+    .swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 16px 10px 10px;
+      min-width: 200px;
+    }
+    .swatch-dot {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .swatch-name { font-size: 12px; font-weight: 700; color: var(--text-main); }
+    .swatch-hex  { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .swatch-use  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    /* ── Gradient pills ─────────────────────────────────────────────────────── */
+    .gradients { display: flex; flex-wrap: wrap; gap: 10px; }
+    .grad-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 14px 8px 8px;
+    }
+    .grad-bar {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .grad-label { font-size: 12px; font-weight: 700; color: var(--text-main); }
+    .grad-val   { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; line-height: 1.4; }
+
+    /* ── Tier grid ─────────────────────────────────────────────────────────── */
+    .tier-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .tier-card {
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid;
+    }
+    .tier-card.public  { background: #f0fdf4; border-color: #bbf7d0; }
+    .tier-card.team    { background: #eff6ff; border-color: #bfdbfe; }
+    .tier-card.admin   { background: #fef2f2; border-color: #fecaca; }
+    .tier-card .tier-title {
+      font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .tier-card.public  .tier-title { color: #15803d; }
+    .tier-card.team    .tier-title { color: #1d4ed8; }
+    .tier-card.admin   .tier-title { color: #b91c1c; }
+    .tier-card .tier-roles { display: flex; flex-direction: column; gap: 5px; }
+    .role-row { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+    .role-row .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── SSO Flow ─────────────────────────────────────────────────────────── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      position: relative;
+    }
+    .flow-step:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 36px;
+      bottom: -12px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--azul-hb) 0%, transparent 100%);
+      opacity: 0.25;
+    }
+    .flow-step + .flow-step { padding-top: 12px; }
+    .flow-num {
+      width: 32px; height: 32px;
+      background: var(--carbon);
+      color: var(--celeste);
+      font-size: 12px; font-weight: 800;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .flow-content { padding-top: 3px; }
+    .flow-label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .flow-detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Steps how-to ─────────────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step-item {
+      display: flex;
+      gap: 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+    .step-num {
+      width: 26px; height: 26px;
+      background: var(--carbon);
+      color: white;
+      font-size: 12px; font-weight: 800;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body { font-size: 13px; color: #374151; line-height: 1.6; }
+    .step-body code {
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--resina);
+    }
+
+    /* ── Architecture diagram ─────────────────────────────────────────────── */
+    .arch-box {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #94a3b8;
+      overflow-x: auto;
+    }
+    .arch-box .hi { color: var(--celeste); font-weight: 600; }
+    .arch-box .lo { color: #475569; }
+
+    /* ── Badge examples ─────────────────────────────────────────────────────── */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tag-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid;
+    }
+    .tag-verde    { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .tag-azul     { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .tag-amarillo { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .tag-purple   { background: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
+    .tag-sso      { background: #eff6ff; color: #0072CE; border-color: #bfdbfe; }
+    .tag-team     { background: #eff6ff; color: #3A5DAE; border-color: #bfdbfe; }
+    .tag-admin    { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+    /* ── Roadmap ─────────────────────────────────────────────────────────── */
+    .roadmap { display: flex; flex-direction: column; gap: 0; }
+    .road-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .road-item:last-child { border-bottom: none; }
+    .road-phase {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .road-phase.done    { background: #dcfce7; color: #15803d; }
+    .road-phase.pending { background: #fef3c7; color: #92400e; }
+    .road-phase.idea    { background: #f3e8ff; color: #6b21a8; }
+    .road-body { flex: 1; }
+    .road-title { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .road-desc  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .road-status {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      align-self: flex-start; margin-top: 4px;
+    }
+    .road-status.done    { background: #dcfce7; color: #15803d; }
+    .road-status.pending { background: #fef3c7; color: #92400e; }
+    .road-status.idea    { background: #f3e8ff; color: #6b21a8; }
+
+    /* ── Footer ─────────────────────────────────────────────────────────────── */
+    .spec-footer {
+      background: var(--carbon);
+      color: rgba(255,255,255,0.35);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 20px 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .spec-footer .brand { color: var(--celeste); font-weight: 700; }
+
+    @media (max-width: 768px) {
+      .spec-header { padding: 32px 24px 28px; }
+      .nav-bar { padding: 0 24px; }
+      .page { padding: 32px 20px 60px; }
+      .tier-grid { grid-template-columns: 1fr; }
+      .spec-footer { padding: 16px 24px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HEADER ════════════════════════════════════════════════════════════ -->
+  <header class="spec-header">
+    <div class="spec-header-inner">
+      <div class="badge">📄 Schema &amp; Design Spec · v1.0.03</div>
+      <h1>hidro<span class="bi">SSO</span> Dashboard<br>Schema &amp; Design Spec</h1>
+      <div class="meta">
+        <span><strong>Versión:</strong> 1.0.03</span>
+        <span><strong>Fecha:</strong> 2026-04-21</span>
+        <span><strong>Autor:</strong> Philippe Abadie</span>
+        <span><strong>Proyecto:</strong> hidro<span style="color:var(--celeste)">BI</span>ntel</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ NAV ═══════════════════════════════════════════════════════════════ -->
+  <nav class="nav-bar">
+    <a href="#vision">Visión</a>
+    <a href="#schema">Schema JSON</a>
+    <a href="#tiers">Tiers</a>
+    <a href="#sso">SSO</a>
+    <a href="#design">Diseño</a>
+    <a href="#how-to">How-to</a>
+    <a href="#roadmap">Roadmap</a>
+  </nav>
+
+  <!-- ══ CONTENT ═══════════════════════════════════════════════════════════ -->
+  <div class="page">
+
+    <!-- 1. Visión general -->
+    <section class="section" id="vision">
+      <div class="section-label">
+        <div class="num">1</div>
+        <h2>Visión general</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <p>El dashboard de HidroSSO es el <strong>portal de entrada al ecosistema hidroBIntel</strong>. Cada app del ecosistema Hidrobart aparece como una tarjeta navegable. El sistema es <strong>paramétrico</strong>: las apps se definen en un archivo JSON externo, no en el código del componente.</p>
+        <p style="margin-top:12px;">La arquitectura de archivos es la siguiente:</p>
+        <div class="arch-box" style="margin-top:16px;">
+<span class="hi">frontend/</span><br>
+├── <span class="hi">app/</span><br>
+│   └── <span class="hi">dashboard/</span><br>
+│   │   └── <span class="hi">page.tsx</span>          <span class="lo">← Componente principal (lee apps.json)</span><br>
+│   └── <span class="hi">dashboardFirst/</span><br>
+│       └── <span class="hi">page.tsx</span>          <span class="lo">← Backup del dashboard anterior</span><br>
+└── <span class="hi">data/</span><br>
+    └── <span class="hi">apps.json</span>             <span class="lo">← Fuente de verdad de las apps</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Schema apps.json -->
+    <section class="section" id="schema">
+      <div class="section-label">
+        <div class="num">2</div>
+        <h2>Schema — <code style="font-family:'JetBrains Mono',monospace;font-size:16px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--resina)">apps.json</code></h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <p>Cada entrada del array representa una app del ecosistema. Todos los campos son <strong>requeridos</strong>.</p>
+
+      <div class="table-wrap" style="margin-top:20px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Campo</th>
+              <th>Tipo</th>
+              <th>Req.</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Identificador único. Usado para mapear el gradiente del ícono.</td></tr>
+            <tr><td><code>name</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Nombre visible en la tarjeta.</td></tr>
+            <tr><td><code>sub</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Dominio mostrado debajo del nombre.</td></tr>
+            <tr><td><code>desc</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Descripción corta de la app.</td></tr>
+            <tr><td><code>icon</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Emoji que representa la app.</td></tr>
+            <tr><td><code>url</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>URL de destino. Usar <code>"#"</code> si no hay URL aún.</td></tr>
+            <tr><td><code>tag</code></td><td><code>string</code></td><td><span class="check">✅</span></td><td>Badge de estado. Vacío <code>""</code> o uno de los valores permitidos.</td></tr>
+            <tr><td><code>ssoId</code></td><td><code>string | null</code></td><td><span class="check">✅</span></td><td><code>null</code> = link directo. <code>string</code> = lanza flujo SSO con ese ID.</td></tr>
+            <tr><td><code>active</code></td><td><code>boolean</code></td><td><span class="check">✅</span></td><td><code>true</code> = app activa. <code>false</code> = aparece en sección Legado/Deprecado.</td></tr>
+            <tr><td><code>tier</code></td><td><code>"public" | "team" | "admin"</code></td><td><span class="check">✅</span></td><td>Nivel de visibilidad según orgRole de Azure AD.</td></tr>
+            <tr><td><code>order</code></td><td><code>number</code></td><td><span class="check">✅</span></td><td>Orden de aparición en el grid (ascendente).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tag values -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:32px 0 14px;">Valores permitidos para <code style="font-family:'JetBrains Mono',monospace;font-size:14px;background:#f1f5f9;padding:1px 6px;border-radius:5px;color:var(--resina)">tag</code></h3>
+
+      <div class="badge-row" style="margin-bottom:20px;">
+        <span class="tag-badge tag-verde">ACTUALIZADO</span>
+        <span style="font-size:12px;color:var(--text-muted)">Verde — App recientemente actualizada</span>
+      </div>
+      <div class="badge-row" style="margin-bottom:20px;">
+        <span class="tag-badge tag-azul">NUEVO</span>
+        <span style="font-size:12px;color:var(--text-muted)">Azul — App recién incorporada</span>
+      </div>
+      <div class="badge-row" style="margin-bottom:20px;">
+        <span class="tag-badge tag-amarillo">PROTOTIPO</span>
+        <span style="font-size:12px;color:var(--text-muted)">Amarillo — En desarrollo, no production-ready</span>
+      </div>
+      <div class="badge-row" style="margin-bottom:24px;">
+        <span class="tag-badge tag-purple">IDEA</span>
+        <span style="font-size:12px;color:var(--text-muted)">Púrpura — Concepto, sin desarrollo real</span>
+      </div>
+
+      <!-- Example JSON -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:0 0 14px;">Ejemplo completo de entrada</h3>
+      <pre>{
+  <span class="key">"id"</span>:     <span class="str">"costeo"</span>,
+  <span class="key">"name"</span>:   <span class="str">"Costeo360"</span>,
+  <span class="key">"sub"</span>:    <span class="str">"costeo360.hidrobart.com"</span>,
+  <span class="key">"desc"</span>:   <span class="str">"Costeo Hidrobart"</span>,
+  <span class="key">"icon"</span>:   <span class="str">"💰"</span>,
+  <span class="key">"url"</span>:    <span class="str">"https://costeo360.hidrobart.com"</span>,
+  <span class="key">"tag"</span>:    <span class="str">"ACTUALIZADO"</span>,
+  <span class="key">"ssoId"</span>:  <span class="str">"costeo360"</span>,
+  <span class="key">"active"</span>: <span class="kw">true</span>,
+  <span class="key">"tier"</span>:   <span class="str">"public"</span>,
+  <span class="key">"order"</span>:  <span class="num">5</span>
+}</pre>
+    </section>
+
+    <!-- 3. Tiers -->
+    <section class="section" id="tiers">
+      <div class="section-label">
+        <div class="num">3</div>
+        <h2>Sistema de visibilidad — Tiers</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <p>El campo <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:var(--resina)">tier</code> controla qué usuarios ven cada app según su <strong>orgRole</strong> de Azure AD.</p>
+
+      <div class="tier-grid" style="margin-top:20px;margin-bottom:28px;">
+        <div class="tier-card public">
+          <div class="tier-title">🟢 Public</div>
+          <div class="tier-roles">
+            <div class="role-row"><span class="dot" style="background:#15803d"></span>Employee ✅</div>
+            <div class="role-row"><span class="dot" style="background:#15803d"></span>Manager ✅</div>
+            <div class="role-row"><span class="dot" style="background:#15803d"></span>Admin ✅</div>
+            <div class="role-row"><span class="dot" style="background:#15803d"></span>SuperAdmin ✅</div>
+          </div>
+        </div>
+        <div class="tier-card team">
+          <div class="tier-title">🔵 Team</div>
+          <div class="tier-roles">
+            <div class="role-row"><span class="dot" style="background:#cbd5e1"></span>Employee ❌</div>
+            <div class="role-row"><span class="dot" style="background:#1d4ed8"></span>Manager ✅</div>
+            <div class="role-row"><span class="dot" style="background:#1d4ed8"></span>Admin ✅</div>
+            <div class="role-row"><span class="dot" style="background:#1d4ed8"></span>SuperAdmin ✅</div>
+          </div>
+        </div>
+        <div class="tier-card admin">
+          <div class="tier-title">🔴 Admin</div>
+          <div class="tier-roles">
+            <div class="role-row"><span class="dot" style="background:#cbd5e1"></span>Employee ❌</div>
+            <div class="role-row"><span class="dot" style="background:#cbd5e1"></span>Manager ❌</div>
+            <div class="role-row"><span class="dot" style="background:#b91c1c"></span>Admin ✅</div>
+            <div class="role-row"><span class="dot" style="background:#b91c1c"></span>SuperAdmin ✅</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lógica canSee -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:0 0 14px;">Lógica del componente</h3>
+      <pre><span class="kw">function</span> <span class="fn">canSee</span>(app: <span class="type">App</span>, orgRoles: <span class="type">string[]</span>): <span class="type">boolean</span> {
+  <span class="kw">if</span> (app.tier === <span class="str">"public"</span>) <span class="kw">return</span> <span class="kw">true</span>;
+  <span class="kw">if</span> (app.tier === <span class="str">"team"</span>)   <span class="kw">return</span> orgRoles.some(r => [<span class="str">"Manager"</span>,<span class="str">"Admin"</span>,<span class="str">"SuperAdmin"</span>].includes(r));
+  <span class="kw">if</span> (app.tier === <span class="str">"admin"</span>)  <span class="kw">return</span> orgRoles.some(r => [<span class="str">"Admin"</span>,<span class="str">"SuperAdmin"</span>].includes(r));
+  <span class="kw">return</span> <span class="kw">true</span>;
+}</pre>
+
+      <!-- Tier por app -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:28px 0 14px;">Tier actual por app</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>App</th><th>Tier</th><th>Razón</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>HidroSSO</td><td><span class="tag-badge tag-verde" style="font-size:10px">public</span></td><td>Producción general</td></tr>
+            <tr><td>Cortex</td><td><span class="tag-badge tag-verde" style="font-size:10px">public</span></td><td>Producción general</td></tr>
+            <tr><td>Dashboard Institucional</td><td><span class="tag-badge tag-azul" style="font-size:10px">team</span></td><td>Solo gestión y arriba</td></tr>
+            <tr><td>UNIDUM Planificador</td><td><span class="tag-badge tag-admin" style="font-size:10px">admin</span></td><td>Prototipo, solo Philippe ve</td></tr>
+            <tr><td>Costeo360</td><td><span class="tag-badge tag-verde" style="font-size:10px">public</span></td><td>Producción general con SSO</td></tr>
+            <tr><td>CRM Hidrobart</td><td><span class="tag-badge tag-azul" style="font-size:10px">team</span></td><td>Solo gestión y arriba</td></tr>
+            <tr><td>CRM Pipeline</td><td><span class="tag-badge tag-admin" style="font-size:10px">admin</span></td><td>Idea, solo Philippe ve</td></tr>
+            <tr><td>Hidro+</td><td><span class="tag-badge tag-verde" style="font-size:10px">public</span></td><td>Producción general</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info" style="margin-top:20px;">
+        <span class="icon">👁</span>
+        <div><strong>Badge visual de tier:</strong> Los usuarios Admin/SuperAdmin ven un badge <span class="tag-badge tag-team" style="font-size:10px">TEAM</span> o <span class="tag-badge tag-admin" style="font-size:10px">ADMIN</span> en las tarjetas correspondientes, permitiéndoles identificar qué ve cada perfil sin abrir el JSON.</div>
+      </div>
+    </section>
+
+    <!-- 4. SSO -->
+    <section class="section" id="sso">
+      <div class="section-label">
+        <div class="num">4</div>
+        <h2>Sistema SSO</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <p>Las apps con <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:var(--resina)">ssoId</code> no abren una URL directamente — lanzan el flujo SSO del backend, que genera un token de sesión temporal para la app destino.</p>
+
+      <div class="card" style="margin-top:20px;margin-bottom:24px;">
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <div class="flow-label">Click en tarjeta SSO</div>
+              <div class="flow-detail">Usuario hace click en una app con ssoId (ej: "costeo360")</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-content">
+              <div class="flow-label">Llamada al Next.js API Route</div>
+              <div class="flow-detail">GET /api/sso-launch?app={ssoId}</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-content">
+              <div class="flow-label">Backend genera token temporal</div>
+              <div class="flow-detail">FastAPI /auth/sso-launch → token UUID → almacenado en Redis (TTL 60s)</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num">4</div>
+            <div class="flow-content">
+              <div class="flow-label">Respuesta con redirect_url</div>
+              <div class="flow-detail">{ redirect_url: "https://costeo360.hidrobart.com/auth/sso?token=..." }</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num">5</div>
+            <div class="flow-content">
+              <div class="flow-label">Abre app destino</div>
+              <div class="flow-detail">window.open(redirect_url, "_blank") → app destino intercambia token → sesión activa</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:0 0 14px;">Apps con SSO activo</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>App</th><th>ssoId</th><th>URL destino</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>💰 Costeo360</td>
+              <td><code>costeo360</code></td>
+              <td><code>https://costeo360.hidrobart.com/auth/sso</code></td>
+            </tr>
+            <tr>
+              <td>🤝 CRM Hidrobart</td>
+              <td><code>crm2</code></td>
+              <td><code>https://crm2.hidrobart.com/auth/sso</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Diseño visual -->
+    <section class="section" id="design">
+      <div class="section-label">
+        <div class="num">5</div>
+        <h2>Diseño visual — Tokens Hidrobart</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <p>El dashboard sigue el <strong>Layout Standard Hidrobart v1.1</strong>. Fuente exclusiva: <strong>Montserrat</strong>.</p>
+
+      <!-- Paleta -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:24px 0 16px;">Paleta de colores</h3>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#13294B"></div>
+          <div>
+            <div class="swatch-name">Carbón Activado</div>
+            <div class="swatch-hex">#13294B</div>
+            <div class="swatch-use">Header bg, texto título tarjeta</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#3A5DAE"></div>
+          <div>
+            <div class="swatch-name">Azul Hidrobart</div>
+            <div class="swatch-hex">#3A5DAE</div>
+            <div class="swatch-use">Hover border tarjetas, section label</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#6CACE4"></div>
+          <div>
+            <div class="swatch-name">Celeste Hidrobart</div>
+            <div class="swatch-hex">#6CACE4</div>
+            <div class="swatch-use">"BI" en hidroBIntel, saludo, patrón</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#2C5697"></div>
+          <div>
+            <div class="swatch-name">Azul Resina</div>
+            <div class="swatch-hex">#2C5697</div>
+            <div class="swatch-use">Gradientes de íconos</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#0072CE"></div>
+          <div>
+            <div class="swatch-name">Azul Flow</div>
+            <div class="swatch-hex">#0072CE</div>
+            <div class="swatch-use">Badge SSO, gradientes de íconos</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-dot" style="background:#c8d5e8;border:1px solid #dde5f0"></div>
+          <div>
+            <div class="swatch-name">Content BG</div>
+            <div class="swatch-hex">#c8d5e8</div>
+            <div class="swatch-use">Fondo área de apps</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gradientes de íconos -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:32px 0 16px;">Gradientes de íconos por app</h3>
+      <div class="gradients">
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#13294B,#2C5697)"></div>
+          <div>
+            <div class="grad-label">hidrosso</div>
+            <div class="grad-val">#13294B → #2C5697</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#3A5DAE,#13294B)"></div>
+          <div>
+            <div class="grad-label">cortex</div>
+            <div class="grad-val">#3A5DAE → #13294B</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#0072CE,#3A5DAE)"></div>
+          <div>
+            <div class="grad-label">superset</div>
+            <div class="grad-val">#0072CE → #3A5DAE</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#6CACE4,#3A5DAE)"></div>
+          <div>
+            <div class="grad-label">unidum</div>
+            <div class="grad-val">#6CACE4 → #3A5DAE</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#2C5697,#0072CE)"></div>
+          <div>
+            <div class="grad-label">costeo</div>
+            <div class="grad-val">#2C5697 → #0072CE</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#0072CE,#13294B)"></div>
+          <div>
+            <div class="grad-label">crm2</div>
+            <div class="grad-val">#0072CE → #13294B</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#3A5DAE,#6CACE4)"></div>
+          <div>
+            <div class="grad-label">crm1</div>
+            <div class="grad-val">#3A5DAE → #6CACE4</div>
+          </div>
+        </div>
+        <div class="grad-pill">
+          <div class="grad-bar" style="background:linear-gradient(135deg,#6CACE4,#2C5697)"></div>
+          <div>
+            <div class="grad-label">hidroplus</div>
+            <div class="grad-val">#6CACE4 → #2C5697</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estructura visual -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:32px 0 14px;">Estructura visual de la página</h3>
+      <div class="arch-box">
+┌─────────────────────────────────────────────────────┐<br>
+│  <span class="hi">HEADER ZONE</span>  (#13294B gradient + patrón hexagonal)  │<br>
+│  ┌─────────────────────────────────────────────┐    │<br>
+│  │ [logo] | hidro<span class="hi">BI</span>ntel  · Philippe [roles] Salir│    │<br>
+│  └─────────────────────────────────────────────┘    │<br>
+│  <span class="hi">Buenas tardes, Philippe 👋 · @hidrobart.com</span>        │<br>
+├─────────────────────────────────────────────────────┤<br>
+│  <span class="hi">CONTENT ZONE</span>  (#c8d5e8)                            │<br>
+│  ▌SISTEMAS ACTIVOS                                  │<br>
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐              │<br>
+│  │ App  │ │ App  │ │ App  │ │ App  │              │<br>
+│  │ card │ │ card │ │ card │ │ card │              │<br>
+│  └──────┘ └──────┘ └──────┘ └──────┘              │<br>
+└─────────────────────────────────────────────────────┘
+      </div>
+    </section>
+
+    <!-- 6. How-to -->
+    <section class="section" id="how-to">
+      <div class="section-label">
+        <div class="num">6</div>
+        <h2>How-to</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- Agregar app -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:0 0 16px;">Agregar una nueva app</h3>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">Abrir <code>frontend/data/apps.json</code></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">Agregar una nueva entrada siguiendo el schema de la sección 2. Asignar un <code>id</code> único (snake_case, sin guiones).</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">Agregar el gradiente del ícono en <code>ICON_GRADIENT</code> dentro de <code>page.tsx</code>:
+            <pre style="margin-top:10px;font-size:12px;padding:12px 16px">miapp: <span class="str">"linear-gradient(135deg, #COLOR1 0%, #COLOR2 100%)"</span>,</pre>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">Commit + push desde VS Code local → <code>git pull</code> en VM → <code>npm run build</code> → <code>pm2 restart hidrosso-frontend</code></div>
+        </div>
+      </div>
+
+      <div class="callout warn" style="margin-top:16px;">
+        <span class="icon">⚠️</span>
+        <div><strong>Fase 2 (futuro):</strong> Cuando el JSON se mueva al backend FastAPI (<code>GET /config/apps</code>), solo será necesario editar el JSON en el servidor — sin rebuild.</div>
+      </div>
+
+      <!-- Promover tier -->
+      <h3 style="font-size:15px;font-weight:800;color:var(--carbon);margin:32px 0 16px;">Promover una app a tier más amplio</h3>
+      <p>Cuando una app en <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:var(--resina)">admin</code> o <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:var(--resina)">team</code> esté lista para más usuarios, solo editar el JSON:</p>
+      <pre style="margin-top:12px;"><span class="cmt">// Antes — solo admins la ven</span>
+{ <span class="key">"tier"</span>: <span class="str">"admin"</span>, <span class="key">"tag"</span>: <span class="str">"PROTOTIPO"</span> }
+
+<span class="cmt">// Después — todos la ven</span>
+{ <span class="key">"tier"</span>: <span class="str">"public"</span>, <span class="key">"tag"</span>: <span class="str">"ACTUALIZADO"</span> }</pre>
+
+      <div class="callout success" style="margin-top:16px;">
+        <span class="icon">✅</span>
+        <div>Solo editar el JSON + commit + deploy. <strong>Sin cambios en código.</strong></div>
+      </div>
+    </section>
+
+    <!-- 7. Roadmap -->
+    <section class="section" id="roadmap">
+      <div class="section-label">
+        <div class="num">7</div>
+        <h2>Roadmap</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="roadmap">
+          <div class="road-item">
+            <div class="road-phase done">1</div>
+            <div class="road-body">
+              <div class="road-title">JSON en repo</div>
+              <div class="road-desc"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:var(--resina)">frontend/data/apps.json</code> como fuente de verdad. Dashboard paramétrico con tiers y SSO.</div>
+            </div>
+            <span class="road-status done">✅ Completado</span>
+          </div>
+          <div class="road-item">
+            <div class="road-phase pending">2</div>
+            <div class="road-body">
+              <div class="road-title">Endpoint FastAPI <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#fef3c7;padding:1px 5px;border-radius:4px;color:var(--carbon)">GET /config/apps</code></div>
+              <div class="road-desc">Mover el JSON al backend. El dashboard lo fetcha en runtime — sin rebuild para agregar/editar apps.</div>
+            </div>
+            <span class="road-status pending">⏳ Pendiente</span>
+          </div>
+          <div class="road-item">
+            <div class="road-phase idea">3</div>
+            <div class="road-body">
+              <div class="road-title">Panel admin UI</div>
+              <div class="road-desc">Interfaz visual para gestionar apps, tiers y orden sin tocar git ni archivos. Solo admins.</div>
+            </div>
+            <span class="road-status idea">💡 Idea</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+  <footer class="spec-footer">
+    <span>hidro<span class="brand">SSO</span> · Schema &amp; Design Spec v1.0.03</span>
+    <span>© 2026 Hidrobart · Philippe Abadie · 2026-04-21</span>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HidroSSO — Documentación Técnica</title>
+<style>
+  :root {
+    --brand: #0f4c8a;
+    --brand-light: #1a6bbf;
+    --accent: #00c4a7;
+    --bg: #f7f9fc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --success: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --sidebar-w: 260px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  nav {
+    width: var(--sidebar-w); min-height: 100vh; background: var(--brand);
+    position: fixed; top: 0; left: 0; overflow-y: auto; z-index: 100;
+    display: flex; flex-direction: column;
+  }
+  .nav-logo { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,.15); }
+  .nav-logo h1 { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
+  .nav-logo p { color: rgba(255,255,255,.6); font-size: .75rem; margin-top: .2rem; }
+  .nav-section { padding: .75rem 1.25rem .25rem; color: rgba(255,255,255,.45); font-size: .68rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  nav a { display: block; padding: .45rem 1.25rem; color: rgba(255,255,255,.8); text-decoration: none; font-size: .85rem; border-left: 3px solid transparent; transition: all .15s; }
+  nav a:hover, nav a.active { color: #fff; background: rgba(255,255,255,.08); border-left-color: var(--accent); }
+
+  /* MAIN */
+  main { margin-left: var(--sidebar-w); flex: 1; max-width: 900px; padding: 2.5rem 3rem; }
+
+  /* SECTIONS */
+  section { display: none; }
+  section.active { display: block; }
+
+  h2 { font-size: 1.6rem; font-weight: 700; color: var(--brand); margin-bottom: .4rem; }
+  .subtitle { color: var(--muted); font-size: .9rem; margin-bottom: 2rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 .75rem; padding-left: .75rem; border-left: 3px solid var(--accent); }
+  h4 { font-size: .95rem; font-weight: 600; color: var(--brand); margin: 1.25rem 0 .5rem; }
+  p { line-height: 1.7; color: var(--text); margin-bottom: .75rem; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+  .stat-card .label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat-card .value { font-size: 1.1rem; font-weight: 700; color: var(--brand); margin-top: .2rem; }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+  .flow-step { display: flex; align-items: flex-start; gap: 1rem; }
+  .flow-line { display: flex; flex-direction: column; align-items: center; }
+  .flow-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+  .flow-connector { width: 2px; background: var(--border); flex: 1; min-height: 24px; margin: 2px 0; }
+  .flow-content { padding: .2rem 0 1.25rem; }
+  .flow-content strong { font-size: .95rem; color: var(--text); display: block; margin-bottom: .2rem; }
+  .flow-content span { font-size: .83rem; color: var(--muted); }
+
+  /* CODE */
+  pre { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 1.25rem 1.5rem; overflow-x: auto; font-size: .82rem; line-height: 1.6; margin: .75rem 0 1.25rem; }
+  code { font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; }
+  p code, li code { background: #e8eef6; color: var(--brand); padding: .15em .4em; border-radius: 4px; font-size: .85em; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0 1.5rem; font-size: .88rem; }
+  th { background: var(--bg); color: var(--muted); font-weight: 600; text-align: left; padding: .6rem 1rem; border-bottom: 2px solid var(--border); font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+  td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: .2em .6em; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+  .badge-green { background: #dcfce7; color: var(--success); }
+  .badge-yellow { background: #fef9c3; color: var(--warn); }
+  .badge-red { background: #fee2e2; color: var(--danger); }
+  .badge-blue { background: #dbeafe; color: var(--brand); }
+
+  /* ALERT */
+  .alert { border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; display: flex; gap: .75rem; align-items: flex-start; font-size: .88rem; line-height: 1.6; }
+  .alert-warn { background: #fef9c3; border: 1px solid #fde047; }
+  .alert-danger { background: #fee2e2; border: 1px solid #fca5a5; }
+  .alert-success { background: #dcfce7; border: 1px solid #86efac; }
+  .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { display: flex; gap: .75rem; align-items: flex-start; padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ENDPOINT CARD */
+  .endpoint { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden; }
+  .endpoint-header { display: flex; align-items: center; gap: .75rem; padding: .85rem 1.25rem; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .method { font-size: .78rem; font-weight: 700; padding: .25em .6em; border-radius: 4px; }
+  .method-get { background: #dcfce7; color: var(--success); }
+  .method-post { background: #dbeafe; color: var(--brand); }
+  .endpoint-path { font-family: monospace; font-size: .9rem; font-weight: 600; color: var(--text); }
+  .endpoint-body { padding: 1rem 1.25rem; }
+  .endpoint-body p { margin-bottom: .5rem; font-size: .88rem; }
+
+  /* POSTMORTEM */
+  .timeline { border-left: 3px solid var(--border); padding-left: 1.5rem; margin: 1.5rem 0; }
+  .timeline-item { margin-bottom: 1.5rem; position: relative; }
+  .timeline-item::before { content: ''; width: 10px; height: 10px; background: var(--brand); border-radius: 50%; position: absolute; left: -1.9rem; top: .3rem; }
+  .timeline-item .time { font-size: .78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  .timeline-item strong { display: block; font-size: .95rem; margin: .15rem 0 .25rem; }
+  .timeline-item p { font-size: .87rem; color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <h1>HidroSSO</h1>
+    <p>Documentación técnica v1.1</p>
+  </div>
+  <div class="nav-section">Especificación</div>
+  <a href="#" onclick="show('overview')" class="active">¿Qué es HidroSSO?</a>
+  <a href="#" onclick="show('flow')">Flujo SSO</a>
+  <a href="#" onclick="show('endpoints')">Endpoints API</a>
+  <a href="#" onclick="show('redis')">Redis &amp; Sesiones</a>
+  <a href="#" onclick="show('config')">Variables de entorno</a>
+  <div class="nav-section">Integración</div>
+  <a href="#" onclick="show('register')">Registrar nueva app</a>
+  <a href="#" onclick="show('files')">Archivos requeridos</a>
+  <a href="#" onclick="show('session-api')">Leer sesión del usuario</a>
+  <a href="#" onclick="show('errors')">Errores y diagnóstico</a>
+  <a href="#" onclick="show('checklist')">Checklist</a>
+  <div class="nav-section">Operación</div>
+  <a href="#" onclick="show('postmortem')">Postmortem 2026-04-27</a>
+  <a href="#" onclick="show('workflow')">Workflow de desarrollo</a>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<section id="overview" class="active">
+  <h2>HidroSSO</h2>
+  <p class="subtitle">Login institucional único con Microsoft 365 para todas las apps Hidrobart</p>
+
+  <div class="card-grid">
+    <div class="stat-card"><div class="label">Frontend</div><div class="value">Next.js 15</div></div>
+    <div class="stat-card"><div class="label">Backend</div><div class="value">FastAPI :8010</div></div>
+    <div class="stat-card"><div class="label">Sesiones</div><div class="value">Azure Redis</div></div>
+    <div class="stat-card"><div class="label">Auth</div><div class="value">MS365 / Azure AD</div></div>
+  </div>
+
+  <div class="card">
+    <h4>Principio fundamental</h4>
+    <p>El usuario se autentica <strong>una sola vez</strong> en <code>hidrosso.hidrobart.com</code> con su cuenta Microsoft 365. A partir de ahí accede a cualquier app Hidrobart sin volver a ingresar credenciales. Las apps no manejan autenticación propia — solo validan la cookie <code>hidrosso_sid</code>.</p>
+  </div>
+
+  <h3>Apps registradas</h3>
+  <table>
+    <thead><tr><th>App ID</th><th>Nombre</th><th>Dominio</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><code>costeo360</code></td><td>Costeo360</td><td>costeo360.hidrobart.com</td><td><span class="badge badge-green">Activo</span></td></tr>
+      <tr><td><code>cortex</code></td><td>Cortex</td><td>cortex.hidrobart.com</td><td><span class="badge badge-green">Activo</span></td></tr>
+      <tr><td><code>unidum</code></td><td>Unidum</td><td>unidum.hidrobart.com</td><td><span class="badge badge-green">Activo</span></td></tr>
+      <tr><td><code>crm2</code></td><td>CRM Hidrobart</td><td>crm2.hidrobart.com</td><td><span class="badge badge-green">Activo</span></td></tr>
+      <tr><td><code>hidropluspro</code></td><td>HidroPlus Pro</td><td>hidropluspro.hidrobart.com</td><td><span class="badge badge-blue">Nuevo</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Arquitectura de roles</h3>
+  <div class="card">
+    <p><strong>OrgRoles</strong> (grupos Azure AD) → <strong>FunctionalRoles</strong> (base de datos) → <strong>ProcessRoles</strong> (permisos por módulo)</p>
+    <p style="margin:0;font-size:.87rem;color:var(--muted)">Los roles se leen en el momento del login vía Microsoft Graph y se almacenan en la sesión de Redis. TTL de caché: 15 minutos.</p>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section id="flow">
+  <h2>Flujo SSO</h2>
+  <p class="subtitle">De clic en el dashboard a acceso en la app destino</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">1</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>Usuario en HidroSSO dashboard</strong><span>Hace clic en una app (ej. Costeo360)</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">2</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>HidroSSO Frontend — GET /api/sso-launch?app=costeo360</strong><span>Lee el <code>hidrobartSessionId</code> del JWT de NextAuth (server-side)</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">3</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>HidroSSO Backend — POST /auth/sso-launch</strong><span>Crea launch token <code>lt_xxxx</code> en Redis (TTL 60s, one-time). Devuelve redirect URL.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">4</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>Browser → https://costeo360.hidrobart.com/auth/sso?lt=lt_xxxx</strong><span>La página /auth/sso redirige a /api/sso-entry</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">5</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>Costeo360 — GET /api/sso-entry?lt=lt_xxxx</strong><span>Llama server-side a HidroSSO /auth/sso-exchange, recibe session_id, setea cookie <code>hidrosso_sid</code></span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:var(--accent)">✓</div></div>
+      <div class="flow-content"><strong>Redirect → /dashboard de Costeo360</strong><span>Usuario autenticado sin haber ingresado credenciales en la app</span></div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⏱️</span>
+    <div>El launch token tiene <strong>60 segundos de vida</strong>. Si el usuario tarda más en completar el redirect (red lenta, pestaña en background), recibirá <code>token_expirado</code> y deberá volver a hacer clic desde el dashboard.</div>
+  </div>
+</section>
+
+<!-- ENDPOINTS -->
+<section id="endpoints">
+  <h2>Endpoints API</h2>
+  <p class="subtitle">Backend FastAPI en <code>https://auth-api.hidrobart.com</code> (puerto 8010 en VM)</p>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/auth/ms-login</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Acepta el <code>access_token</code> de MS365 (NextAuth). Obtiene perfil y grupos via Graph. Crea sesión en Redis.</p>
+      <h4>Body</h4>
+      <pre><code>{ "access_token": "eyJ0eXAi..." }</code></pre>
+      <h4>Response 200</h4>
+      <pre><code>{ "session_id": "DZS9pBP5...", "email": "philippe@hidrobart.com",
+  "name": "Philippe Abadie", "tenant": "hidrobart.com", "roles": { ... } }</code></pre>
+      <table><thead><tr><th>Código</th><th>Causa</th></tr></thead><tbody>
+        <tr><td>401</td><td>Token MS365 inválido</td></tr>
+        <tr><td>403</td><td>Dominio no autorizado (no es @hidrobart.com/mx/br)</td></tr>
+        <tr><td>503</td><td>Redis no disponible</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/auth/sso-launch</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Crea un launch token de 60s. Llamado server-side desde el frontend de HidroSSO.</p>
+      <h4>Body</h4>
+      <pre><code>{ "session_id": "DZS9pBP5...", "app_id": "costeo360" }</code></pre>
+      <h4>Response 200</h4>
+      <pre><code>{ "redirect_url": "https://costeo360.hidrobart.com/auth/sso?lt=lt_xxxx" }</code></pre>
+      <table><thead><tr><th>Código</th><th>Causa</th></tr></thead><tbody>
+        <tr><td>400</td><td>App no registrada en ALLOWED_APPS</td></tr>
+        <tr><td>401</td><td>Sesión no encontrada o expirada en Redis</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/auth/sso-exchange?lt=lt_xxxx</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Intercambia el launch token (one-time) por el <code>session_id</code> real. Llamado server-side desde la app destino.</p>
+      <h4>Response 200</h4>
+      <pre><code>{ "session_id": "DZS9pBP5..." }</code></pre>
+      <table><thead><tr><th>Código</th><th>Causa</th></tr></thead><tbody>
+        <tr><td>400</td><td>Token no tiene formato lt_</td></tr>
+        <tr><td>401</td><td>Token expirado o ya usado</td></tr>
+        <tr><td>500</td><td>Error interno — revisar logs de hidrosso-api</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/auth/session-info?sid=xxxx</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Valida el <code>session_id</code> y retorna datos del usuario. Renueva el TTL (sliding expiration de 8h). Usado por las apps para verificar la cookie <code>hidrosso_sid</code>.</p>
+      <h4>Response 200</h4>
+      <pre><code>{ "valid": true, "session_id": "...", "email": "philippe@hidrobart.com",
+  "name": "Philippe Abadie", "tenant": "hidrobart.com",
+  "job_title": "Director General", "department": "Dirección", "roles": { ... } }</code></pre>
+      <table><thead><tr><th>Código</th><th>Causa</th></tr></thead><tbody>
+        <tr><td>401</td><td>Sesión no encontrada o expirada</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- REDIS -->
+<section id="redis">
+  <h2>Redis &amp; Sesiones</h2>
+  <p class="subtitle">Azure Cache for Redis — SSL puerto 6380</p>
+
+  <h3>TTLs</h3>
+  <table>
+    <thead><tr><th>Tipo de clave</th><th>TTL</th><th>Renovable</th></tr></thead>
+    <tbody>
+      <tr><td>Sesión de usuario</td><td>8 horas</td><td>Sí — cada llamada a session-info renueva</td></tr>
+      <tr><td>Launch token SSO</td><td>60 segundos</td><td>No — one-time use</td></tr>
+      <tr><td>Caché de roles</td><td>15 minutos</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cookie de sesión</h3>
+  <table>
+    <thead><tr><th>Atributo</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Nombre</td><td><code>hidrosso_sid</code></td></tr>
+      <tr><td>httpOnly</td><td>Sí</td></tr>
+      <tr><td>secure</td><td>Sí (producción)</td></tr>
+      <tr><td>sameSite</td><td>lax</td></tr>
+      <tr><td>maxAge</td><td>28800s (8 horas)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Nota operativa — Error MOVED</h3>
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>Azure Cache for Redis redistribuye internamente slots del cluster. El cliente Python se conecta en modo <strong>standalone</strong> al endpoint principal de Azure. Si aparece un error <code>MOVED</code> en el <code>DELETE</code> del launch token, se captura silenciosamente — el token expira en 60s de forma natural. No afecta el flujo de autenticación.</div>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🚫</span>
+    <div><strong>No usar <code>RedisCluster</code> con Azure.</strong> Los nodos internos del cluster (IPs como <code>52.237.x.x:8500</code>) no son accesibles desde la VM. Si se configura <code>RedisCluster</code>, Redis falla completamente al iniciar y ninguna sesión puede crearse.</div>
+  </div>
+</section>
+
+<!-- CONFIG -->
+<section id="config">
+  <h2>Variables de entorno</h2>
+  <p class="subtitle">Configuración necesaria para el backend y frontend de HidroSSO</p>
+
+  <h3>Backend (FastAPI)</h3>
+  <pre><code>REDIS_HOST=hidrobart-auth-redis.redis.cache.windows.net
+REDIS_PORT=6380
+REDIS_PASSWORD=&lt;clave-azure&gt;
+REDIS_SSL=true
+REDIS_DB=0
+REDIS_CLUSTER_MODE=false   # standalone — ver nota Redis
+
+AZURE_CLIENT_ID=&lt;app-registration-id&gt;
+AZURE_CLIENT_SECRET=&lt;secret&gt;
+AZURE_TENANT_ID=common
+
+SESSION_TTL_SECONDS=28800</code></pre>
+
+  <h3>Frontend (Next.js)</h3>
+  <pre><code>NEXTAUTH_URL=https://hidrosso.hidrobart.com
+NEXTAUTH_SECRET=&lt;openssl rand -base64 32&gt;
+
+AZURE_CLIENT_ID=&lt;app-registration-id&gt;
+AZURE_CLIENT_SECRET=&lt;secret&gt;
+AZURE_TENANT_ID=common
+
+NEXT_PUBLIC_AUTH_API=https://auth-api.hidrobart.com
+NEXT_PUBLIC_APP_NAME=Hidrobart
+NEXT_PUBLIC_APP_URL=https://hidrosso.hidrobart.com</code></pre>
+</section>
+
+<!-- REGISTER -->
+<section id="register">
+  <h2>Registrar nueva app</h2>
+  <p class="subtitle">Dos pasos en HidroSSO antes de tocar la app nueva</p>
+
+  <h3>1. Agregar a ALLOWED_APPS</h3>
+  <p>Archivo: <code>backend/app/routers/sso_router.py</code></p>
+  <pre><code>ALLOWED_APPS = {
+    "costeo360":    "https://costeo360.hidrobart.com/auth/sso",
+    "cortex":       "https://cortex.hidrobart.com/auth/sso",
+    "unidum":       "https://unidum.hidrobart.com/auth/sso",
+    "crm2":         "https://crm2.hidrobart.com/auth/sso",
+    "hidropluspro": "https://hidropluspro.hidrobart.com/auth/sso",
+    "miapp":        "https://miapp.hidrobart.com/auth/sso",  # ← nueva
+}</code></pre>
+
+  <h3>2. Agregar botón al dashboard</h3>
+  <p>Archivo: <code>frontend/data/apps.json</code></p>
+  <pre><code>{
+  "id": "miapp",
+  "name": "Mi App",
+  "sub": "miapp.hidrobart.com",
+  "desc": "Descripción corta de la app",
+  "icon": "🔧",
+  "url": "https://miapp.hidrobart.com",
+  "tag": "NUEVO",
+  "ssoId": "miapp",
+  "active": true,
+  "tier": "team",
+  "order": 10
+}</code></pre>
+
+  <p>Valores para <code>tier</code>: <code>public</code> (todos), <code>team</code> (staff), <code>admin</code> (solo admin).</p>
+
+  <div class="alert alert-success">
+    <span class="alert-icon">✅</span>
+    <div>Después de estos cambios: <strong>git push → VM git pull → pm2 restart hidrosso-api hidrosso-frontend</strong></div>
+  </div>
+</section>
+
+<!-- FILES -->
+<section id="files">
+  <h2>Archivos requeridos en la app</h2>
+  <p class="subtitle">3 archivos + 1 página de error. Sin tocar autenticación propia.</p>
+
+  <h3>Variables de entorno</h3>
+  <pre><code># .env.local de la app nueva
+HIDROSSO_API_URL=https://auth-api.hidrobart.com
+NEXT_PUBLIC_HIDROSSO_URL=https://hidrosso.hidrobart.com
+
+# Para desarrollo local con la VM:
+# HIDROSSO_API_URL=http://localhost:8010
+# NEXT_PUBLIC_HIDROSSO_URL=http://localhost:3010</code></pre>
+
+  <h3>middleware.ts</h3>
+  <pre><code>import { NextRequest, NextResponse } from "next/server";
+
+const PUBLIC_PATHS = ["/login", "/auth/sso", "/api/sso-entry", "/_next", "/favicon.ico"];
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  if (isPublic) return NextResponse.next();
+
+  const sessionId = req.cookies.get("hidrosso_sid")?.value;
+  if (!sessionId) {
+    const hidrossoUrl = process.env.NEXT_PUBLIC_HIDROSSO_URL ?? "https://hidrosso.hidrobart.com";
+    return NextResponse.redirect(hidrossoUrl);
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|images|icons|fonts).*)"],
+};</code></pre>
+
+  <h3>app/api/sso-entry/route.ts</h3>
+  <pre><code>import { NextRequest, NextResponse } from "next/server";
+
+const HIDROSSO_API = process.env.HIDROSSO_API_URL ?? "https://auth-api.hidrobart.com";
+const POST_LOGIN_REDIRECT = "/dashboard";
+const COOKIE_MAX_AGE = 60 * 60 * 8;
+
+export async function GET(req: NextRequest) {
+  const lt = req.nextUrl.searchParams.get("lt");
+  if (!lt || !lt.startsWith("lt_")) return redirectToLogin(req, "token_invalido");
+
+  let sessionId: string;
+  try {
+    const res = await fetch(
+      `${HIDROSSO_API}/auth/sso-exchange?lt=${encodeURIComponent(lt)}`,
+      { method: "GET", signal: AbortSignal.timeout(5_000) }
+    );
+    if (!res.ok) {
+      const detail = await res.json().then((d) => d?.detail ?? "error").catch(() => "error");
+      return redirectToLogin(req, res.status === 401 ? "token_expirado" : "sso_error");
+    }
+    const data = await res.json();
+    sessionId = data.session_id;
+    if (!sessionId) return redirectToLogin(req, "sso_error");
+  } catch {
+    return redirectToLogin(req, "hidrosso_no_disponible");
+  }
+
+  const response = NextResponse.redirect(new URL(POST_LOGIN_REDIRECT, req.nextUrl.origin));
+  response.cookies.set("hidrosso_sid", sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: COOKIE_MAX_AGE,
+  });
+  return response;
+}
+
+function redirectToLogin(req: NextRequest, error: string) {
+  const url = new URL("/login", req.nextUrl.origin);
+  url.searchParams.set("error", error);
+  return NextResponse.redirect(url);
+}</code></pre>
+
+  <h3>app/auth/sso/page.tsx</h3>
+  <pre><code>import { redirect } from "next/navigation";
+
+export default function SsoPage({ searchParams }: { searchParams: { lt?: string } }) {
+  const lt = searchParams.lt;
+  if (!lt) redirect("/login?error=token_invalido");
+  redirect(`/api/sso-entry?lt=${encodeURIComponent(lt)}`);
+}</code></pre>
+
+  <h3>app/login/page.tsx (mínimo)</h3>
+  <pre><code>"use client";
+import { useSearchParams } from "next/navigation";
+
+const ERRORES: Record&lt;string, string&gt; = {
+  token_invalido:          "El enlace de acceso no es válido.",
+  token_expirado:          "El enlace expiró (60s). Vuelve a HidroSSO e intenta de nuevo.",
+  sso_error:               "Error al validar la sesión. Contacta a soporte.",
+  hidrosso_no_disponible:  "HidroSSO no está disponible. Intenta más tarde.",
+};
+
+export default function LoginPage() {
+  const params = useSearchParams();
+  const msg = ERRORES[params.get("error") ?? ""] ?? "Acceso no autorizado.";
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Hidrobart — Acceso&lt;/h1&gt;
+      &lt;p&gt;{msg}&lt;/p&gt;
+      &lt;a href={process.env.NEXT_PUBLIC_HIDROSSO_URL ?? "https://hidrosso.hidrobart.com"}&gt;
+        → Ir a HidroSSO
+      &lt;/a&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+</section>
+
+<!-- SESSION API -->
+<section id="session-api">
+  <h2>Leer sesión del usuario</h2>
+  <p class="subtitle">Cómo obtener nombre, email y roles en tu app</p>
+
+  <pre><code>// lib/session.ts
+export async function getHidroSession(sid: string) {
+  const res = await fetch(
+    `${process.env.HIDROSSO_API_URL}/auth/session-info?sid=${sid}`,
+    { signal: AbortSignal.timeout(3_000) }
+  );
+  if (!res.ok) return null;
+  return res.json();
+}
+
+// En un Server Component:
+import { cookies } from "next/headers";
+import { getHidroSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+
+const sid = cookies().get("hidrosso_sid")?.value;
+const session = sid ? await getHidroSession(sid) : null;
+if (!session) redirect("/login?error=sso_error");
+
+const { name, email, roles, job_title, department } = session;</code></pre>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">💡</span>
+    <div>Cada llamada a <code>session-info</code> renueva el TTL de la sesión en Redis. Para dashboards con muchas peticiones paralelas, considera cachear la respuesta en memoria por 1-2 minutos.</div>
+  </div>
+</section>
+
+<!-- ERRORS -->
+<section id="errors">
+  <h2>Errores y diagnóstico</h2>
+  <p class="subtitle">Qué significa cada error y cómo resolverlo</p>
+
+  <table>
+    <thead><tr><th>Error en URL</th><th>Causa</th><th>Solución</th></tr></thead>
+    <tbody>
+      <tr><td><code>token_invalido</code></td><td>El lt no tiene formato correcto</td><td>Volver a HidroSSO y hacer clic de nuevo</td></tr>
+      <tr><td><code>token_expirado</code></td><td>Pasaron más de 60s</td><td>Volver a HidroSSO y hacer clic de nuevo</td></tr>
+      <tr><td><code>sso_error</code></td><td>Backend de HidroSSO retornó error en el exchange</td><td>Revisar logs de <code>hidrosso-api</code> en PM2</td></tr>
+      <tr><td><code>hidrosso_no_disponible</code></td><td>Timeout o conexión rechazada a HidroSSO backend</td><td>Verificar que <code>hidrosso-api</code> esté online en PM2</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Logs en la VM</h3>
+  <pre><code># Ver estado de todos los procesos
+pm2 status
+
+# Ver logs del backend en tiempo real
+pm2 logs hidrosso-api --lines 30
+
+# Restart tras un deploy
+cd ~/hidroBIntel/hidrosso && git pull && pm2 restart hidrosso-api</code></pre>
+
+  <h3>Señales de alerta en los logs</h3>
+  <table>
+    <thead><tr><th>Mensaje en log</th><th>Diagnóstico</th></tr></thead>
+    <tbody>
+      <tr><td><code>MOVED XXXX IP:puerto</code></td><td>Azure Redis redistribuyó un slot — manejado silenciosamente, no requiere acción</td></tr>
+      <tr><td><code>Redis no disponible</code> al arrancar</td><td>Credenciales Redis incorrectas o host no alcanzable — revisar .env</td></tr>
+      <tr><td><code>sso-launch: 401</code></td><td>Sesión del usuario expiró — debe hacer login nuevo en HidroSSO</td></tr>
+      <tr><td><code>Token MS365 inválido</code></td><td>access_token de NextAuth expiró o hubo error de configuración Azure AD</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CHECKLIST -->
+<section id="checklist">
+  <h2>Checklist de integración</h2>
+  <p class="subtitle">Para cada nueva app que se conecte a HidroSSO</p>
+
+  <h3>En HidroSSO (primero)</h3>
+  <ul class="checklist">
+    <li><div class="check-box"></div>App registrada en <code>ALLOWED_APPS</code> en <code>sso_router.py</code></li>
+    <li><div class="check-box"></div>Entrada agregada en <code>frontend/data/apps.json</code></li>
+    <li><div class="check-box"></div>Git push + VM git pull + pm2 restart hidrosso-api hidrosso-frontend</li>
+  </ul>
+
+  <h3>En la nueva app</h3>
+  <ul class="checklist">
+    <li><div class="check-box"></div><code>HIDROSSO_API_URL</code> y <code>NEXT_PUBLIC_HIDROSSO_URL</code> en <code>.env</code></li>
+    <li><div class="check-box"></div><code>middleware.ts</code> protegiendo rutas privadas</li>
+    <li><div class="check-box"></div><code>app/api/sso-entry/route.ts</code> creado</li>
+    <li><div class="check-box"></div><code>app/auth/sso/page.tsx</code> creado</li>
+    <li><div class="check-box"></div><code>app/login/page.tsx</code> con mensajes de error</li>
+    <li><div class="check-box"></div>Build + deploy de la nueva app</li>
+    <li><div class="check-box"></div>Prueba del flujo completo end-to-end</li>
+  </ul>
+</section>
+
+<!-- POSTMORTEM -->
+<section id="postmortem">
+  <h2>Postmortem — 2026-04-27</h2>
+  <p class="subtitle">SSO caído en todas las apps · Duración ~45 minutos</p>
+
+  <h3>Síntoma</h3>
+  <p>Al hacer clic en Costeo360 (y otras apps) desde el dashboard de HidroSSO, el browser mostraba <code>/login?error=sso_error</code>. El dashboard seguía accesible pero el lanzamiento SSO fallaba consistentemente.</p>
+
+  <h3>Causa raíz</h3>
+  <div class="card">
+    <p>Azure Cache for Redis redistribuyó el slot <strong>6300</strong> a un nodo interno diferente (<code>52.237.54.82:8500</code>). El cliente Python (<code>redis.asyncio.Redis</code>) estaba configurado en modo standalone: conecta a un único endpoint y no sabe seguir redirects <code>MOVED</code>.</p>
+    <p>El endpoint <code>/auth/sso-exchange</code>:</p>
+    <ol style="padding-left:1.25rem;font-size:.9rem;line-height:1.8">
+      <li>Llama <code>GET key</code> → funciona (la réplica local del slot sirve lecturas)</li>
+      <li>Llama <code>DELETE key</code> → Redis responde <code>MOVED</code> (escritura necesita el nodo primario del slot)</li>
+      <li>El cliente lanza <code>ResponseError</code> → FastAPI devuelve 500</li>
+      <li>Costeo360 interpreta 500 como <code>sso_error</code> y bloquea el acceso</li>
+    </ol>
+  </div>
+
+  <h3>Cronología</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="time">11:05</div>
+      <strong>Commit de hidropluspro</strong>
+      <p>Se registra HidroPlus Pro en ALLOWED_APPS y apps.json. El commit reformatea sso_router.py completo — código correcto, no introduce el bug.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">~11:10</div>
+      <strong>Azure redistribuye slot 6300</strong>
+      <p>Azure mueve el slot de Redis a un nodo interno diferente (probable mantenimiento o rebalanceo automático).</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">~11:15</div>
+      <strong>SSO empieza a fallar</strong>
+      <p>Todos los sso-exchange devuelven 500. Los logs muestran MOVED 6300 en hidrosso-api-error.log.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">~11:40</div>
+      <strong>Fix desplegado</strong>
+      <p>Se captura la excepción MOVED en el DELETE del launch token. El token expira en 60s. El flujo SSO vuelve a funcionar correctamente.</p>
+    </div>
+  </div>
+
+  <h3>Qué no hacer</h3>
+  <div class="alert alert-danger">
+    <span class="alert-icon">🚫</span>
+    <div><strong>No usar RedisCluster con Azure Cache for Redis.</strong> Los nodos internos no son accesibles desde la VM. Al configurarlo, Redis falla completamente al iniciar — peor que el error original.</div>
+  </div>
+
+  <h3>Qué vigilar</h3>
+  <p>Si los logs de <code>hidrosso-api</code> muestran errores <code>MOVED</code> en operaciones distintas al delete del launch token (ms-login, session-info, etc.), significa que Azure rebalanceó varios slots. En ese caso revisar el tier de Redis en Azure Portal o considerar migrar a un tier sin clustering (Basic/Standard).</p>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <h2>Workflow de desarrollo</h2>
+  <p class="subtitle">El único flujo válido para modificar el proyecto</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">1</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>Editar en VS Code local</strong><span><code>C:\ClaudeCowork\hidroSSOv2</code></span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">2</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>git commit + git push</strong><span>Desde la máquina local al repositorio en GitHub</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">3</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>En la VM: git pull</strong><span><code>cd ~/hidroBIntel/hidrosso && git pull</code></span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">4</div><div class="flow-connector"></div></div>
+      <div class="flow-content"><strong>Restart del proceso afectado</strong><span>Backend: <code>pm2 restart hidrosso-api</code> — Frontend: <code>npm run build</code> luego <code>pm2 restart hidrosso-frontend</code></span></div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🚫</span>
+    <div><strong>Nunca editar archivos directamente en el servidor.</strong> Editar en la VM rompe la sincronización con git: el próximo <code>git pull</code> puede sobreescribir los cambios o generar conflictos. En abril 2026 una edición directa causó un syntax error en el dashboard que requirió git checkout para revertir.</div>
+  </div>
+
+  <h3>Comandos de referencia en la VM</h3>
+  <pre><code># Estado de todos los procesos
+pm2 status
+
+# Logs en tiempo real
+pm2 logs hidrosso-api --lines 30
+pm2 logs hidrosso-frontend --lines 30
+
+# Rebuild del frontend (solo cuando cambian archivos .tsx/.ts)
+cd ~/hidroBIntel/hidrosso/frontend && npm run build && pm2 restart hidrosso-frontend
+
+# Limpiar objetos huérfanos de git (warning recurrente)
+cd ~/hidroBIntel/hidrosso && git prune && git gc</code></pre>
+</section>
+
+</main>
+
+<script>
+function show(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+  return false;
+}
+</script>
+
+</body>
+</html>

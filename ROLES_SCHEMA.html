@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HidroSSO — Role Schema Specification</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --superadmin: #ef4444;
+      --admin: #f97316;
+      --manager: #eab308;
+      --employee: #3b82f6;
+      --external: #6b7280;
+      --accent: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header h1 span { color: var(--accent); }
+    .meta { color: var(--muted); font-size: 0.85rem; margin-top: 0.4rem; }
+
+    /* Section titles */
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      margin-top: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h2 .layer-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      letter-spacing: 0;
+      font-weight: 600;
+      text-transform: none;
+    }
+    h3 { font-size: 0.95rem; color: var(--muted); margin: 1.2rem 0 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Architecture diagram */
+    .arch {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+      margin-bottom: 0.5rem;
+    }
+    .arch-layer {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      position: relative;
+    }
+    .arch-layer:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1.2rem;
+      z-index: 1;
+    }
+    .arch-layer.l1 { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); }
+    .arch-layer.l2 { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+    .arch-layer.l3 { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); }
+    .arch-layer .icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .arch-layer .title { font-weight: 700; font-size: 0.95rem; }
+    .arch-layer .subtitle { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead tr { background: var(--surface2); }
+    th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+    td { padding: 0.7rem 1rem; border-top: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Role badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .badge.superadmin { background: rgba(239,68,68,0.15); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+    .badge.admin      { background: rgba(249,115,22,0.15); color: #fdba74; border-color: rgba(249,115,22,0.3); }
+    .badge.manager    { background: rgba(234,179,8,0.15);  color: #fde047; border-color: rgba(234,179,8,0.3); }
+    .badge.employee   { background: rgba(59,130,246,0.15); color: #93c5fd; border-color: rgba(59,130,246,0.3); }
+    .badge.external   { background: rgba(107,114,128,0.15);color: #d1d5db; border-color: rgba(107,114,128,0.3); }
+
+    /* Permission pills */
+    .perm {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin: 1px;
+    }
+    .perm.all { color: #86efac; border-color: rgba(134,239,172,0.3); background: rgba(134,239,172,0.08); }
+
+    /* Code block */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      color: #a5f3fc;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    pre .comment { color: #4b5563; }
+    pre .key     { color: #fde68a; }
+    pre .val     { color: #86efac; }
+    pre .str     { color: #a5f3fc; }
+
+    /* Flow */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 1.5rem;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      position: relative;
+    }
+    .flow-step:first-child { border-radius: 10px 10px 0 0; }
+    .flow-step:last-child  { border-radius: 0 0 10px 10px; border-bottom: 1px solid var(--border); }
+    .flow-num {
+      min-width: 1.6rem;
+      height: 1.6rem;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .flow-text { font-size: 0.875rem; }
+    .flow-text strong { color: #fff; }
+    .flow-text small  { color: var(--muted); display: block; margin-top: 0.2rem; }
+
+    /* Users grid */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .user-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .user-card .name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .user-card .role-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .user-card .dept { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
+    .user-card .group { font-size: 0.72rem; color: #6366f1; font-family: monospace; margin-top: 0.3rem; }
+
+    /* Perms matrix highlight */
+    td.full { color: #86efac; font-weight: 600; }
+    td.none { color: #374151; }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <h1>HidroSSO — <span>Role Schema</span> Specification</h1>
+    <div class="meta">Versión 1.0 &nbsp;·&nbsp; 2026-04-21 &nbsp;·&nbsp; Hidrobart SA de CV &nbsp;·&nbsp; HidroSuite</div>
+  </header>
+
+  <!-- Architecture -->
+  <h2>Arquitectura de 3 Capas</h2>
+  <div class="arch">
+    <div class="arch-layer l1">
+      <div class="icon">🏢</div>
+      <div class="title">Capa 1</div>
+      <div class="title" style="color:#818cf8">OrgRole</div>
+      <div class="subtitle">Rango en la organización<br>Viene de Azure AD Groups</div>
+    </div>
+    <div class="arch-layer l2">
+      <div class="icon">🏭</div>
+      <div class="title">Capa 2</div>
+      <div class="title" style="color:#34d399">FunctionalRole</div>
+      <div class="subtitle">Área o departamento<br>Se asigna en base de datos</div>
+    </div>
+    <div class="arch-layer l3">
+      <div class="icon">🔐</div>
+      <div class="title">Capa 3</div>
+      <div class="title" style="color:#fbbf24">ProcessRole</div>
+      <div class="subtitle">Permisos por módulo<br>Granular por acción</div>
+    </div>
+  </div>
+
+  <!-- Capa 1 -->
+  <h2><span class="layer-badge">CAPA 1</span> OrgRole — Rango Organizacional</h2>
+
+  <h3>Grupos Azure AD → OrgRole</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Grupo Azure AD</th><th>Keyword detectado</th><th>OrgRole</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>HB-SuperAdmin</code></td>
+          <td><code>superadmin</code>, <code>super_admin</code></td>
+          <td><span class="badge superadmin">SuperAdmin</span></td>
+          <td>Dueños — acceso total sin restricciones</td>
+        </tr>
+        <tr>
+          <td><code>HB-Admin</code></td>
+          <td><code>admin</code>, <code>administrator</code></td>
+          <td><span class="badge admin">Admin</span></td>
+          <td>Administradores del sistema</td>
+        </tr>
+        <tr>
+          <td><code>HB-Manager</code></td>
+          <td><code>manager</code>, <code>gerente</code></td>
+          <td><span class="badge manager">Manager</span></td>
+          <td>Gerentes y supervisores</td>
+        </tr>
+        <tr>
+          <td><code>HB-Employee</code></td>
+          <td><code>employee</code>, <code>empleado</code>, <code>staff</code>, <code>colaborador</code></td>
+          <td><span class="badge employee">Employee</span></td>
+          <td>Colaboradores estándar (default)</td>
+        </tr>
+        <tr>
+          <td><code>HB-External</code></td>
+          <td><code>external</code>, <code>externo</code>, <code>proveedor</code></td>
+          <td><span class="badge external">External</span></td>
+          <td>Proveedores y consultores externos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Asignaciones actuales — Hidrobart SA de CV</h3>
+  <div class="users-grid">
+    <div class="user-card">
+      <div class="name">Philippe</div>
+      <div class="role-label">Dueño</div>
+      <span class="badge superadmin">SuperAdmin</span>
+      <div class="group">HB-SuperAdmin</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Guillermo</div>
+      <div class="role-label">Dueño</div>
+      <span class="badge superadmin">SuperAdmin</span>
+      <div class="group">HB-SuperAdmin</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Héctor</div>
+      <div class="role-label">Administrador</div>
+      <span class="badge admin">Admin</span>
+      <div class="group">HB-Admin</div>
+      <div class="dept">Compras</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Martín</div>
+      <div class="role-label">Gerente Administración</div>
+      <span class="badge manager">Manager</span>
+      <div class="group">HB-Manager</div>
+      <div class="dept">Finanzas</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Rodrigo</div>
+      <div class="role-label">Gerente Ventas</div>
+      <span class="badge manager">Manager</span>
+      <div class="group">HB-Manager</div>
+      <div class="dept">Ventas</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Rodrigo Acosta</div>
+      <div class="role-label">Supervisor Ventas Químicos</div>
+      <span class="badge manager">Manager</span>
+      <div class="group">HB-Manager</div>
+      <div class="dept">Ventas</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Alberto Gómez</div>
+      <div class="role-label">Supervisor Ventas</div>
+      <span class="badge manager">Manager</span>
+      <div class="group">HB-Manager</div>
+      <div class="dept">Ventas</div>
+    </div>
+    <div class="user-card">
+      <div class="name">Alberto Rodríguez</div>
+      <div class="role-label">Logística</div>
+      <span class="badge employee">Employee</span>
+      <div class="group">HB-Employee</div>
+      <div class="dept">Logistica</div>
+    </div>
+  </div>
+
+  <!-- Capa 2 -->
+  <h2><span class="layer-badge">CAPA 2</span> FunctionalRole — Área / Departamento</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>FunctionalRole</th><th>Área</th><th>Ejemplo combinado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Ventas</code></td><td>Fuerza de ventas</td><td>Manager + Ventas = Gerente de Ventas</td></tr>
+        <tr><td><code>Finanzas</code></td><td>Finanzas y administración</td><td>Manager + Finanzas = Gerente Admin</td></tr>
+        <tr><td><code>Logistica</code></td><td>Logística y almacén</td><td>Employee + Logistica = Operador Logística</td></tr>
+        <tr><td><code>Compras</code></td><td>Compras y proveeduría</td><td>Admin + Compras = Admin módulo compras</td></tr>
+        <tr><td><code>Operaciones</code></td><td>Operaciones generales</td><td></td></tr>
+        <tr><td><code>RecursosHumanos</code></td><td>Recursos humanos</td><td></td></tr>
+        <tr><td><code>Mantenimiento</code></td><td>Mantenimiento industrial</td><td></td></tr>
+        <tr><td><code>Ingenieria</code></td><td>Ingeniería</td><td></td></tr>
+        <tr><td><code>TI</code></td><td>Tecnología de información</td><td></td></tr>
+        <tr><td><code>Calidad</code></td><td>Control de calidad</td><td></td></tr>
+        <tr><td><code>SeguridadIndustrial</code></td><td>Seguridad industrial</td><td></td></tr>
+        <tr><td><code>Gerencia</code></td><td>Dirección general</td><td>SuperAdmin + Gerencia</td></tr>
+        <tr><td><code>Visualizador</code></td><td>Solo lectura transversal</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Capa 3 -->
+  <h2><span class="layer-badge">CAPA 3</span> ProcessRole — Permisos por Módulo</h2>
+
+  <h3>Permisos disponibles</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>leer</code></td><td>Leer</td><td>Ver registros y datos</td></tr>
+        <tr><td><code>escribir</code></td><td>Escribir</td><td>Crear y editar registros</td></tr>
+        <tr><td><code>aprobar</code></td><td>Aprobar</td><td>Validar y autorizar registros</td></tr>
+        <tr><td><code>administrar</code></td><td>Administrar</td><td>Configurar el módulo específico</td></tr>
+        <tr><td><code>reportar</code></td><td>Reportar</td><td>Exportar reportes y dashboards</td></tr>
+        <tr><td><code>configurar</code></td><td>Configurar</td><td>Parámetros globales del sistema</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Matriz de permisos por OrgRole y Módulo</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Módulo</th>
+          <th><span class="badge superadmin">SuperAdmin</span></th>
+          <th><span class="badge admin">Admin</span></th>
+          <th><span class="badge manager">Manager</span></th>
+          <th><span class="badge employee">Employee</span></th>
+          <th><span class="badge external">External</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>hidroplus</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span></td>
+          <td><span class="perm">leer</span></td>
+        </tr>
+        <tr>
+          <td><code>portal_emp</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span></td>
+          <td class="none">—</td>
+        </tr>
+        <tr>
+          <td><code>ops_dashboard</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span></td>
+          <td class="none">—</td>
+        </tr>
+        <tr>
+          <td><code>mantenimiento</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span></td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span></td>
+          <td><span class="perm">leer</span></td>
+        </tr>
+        <tr>
+          <td><code>compras</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">aprobar</span></td>
+          <td><span class="perm">leer</span></td>
+          <td class="none">—</td>
+        </tr>
+        <tr>
+          <td><code>rrhh</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span></td>
+          <td><span class="perm">leer</span></td>
+          <td class="none">—</td>
+        </tr>
+        <tr>
+          <td><code>reportes</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span><span class="perm">reportar</span></td>
+          <td><span class="perm">leer</span></td>
+          <td class="none">—</td>
+        </tr>
+        <tr>
+          <td><code>configuracion</code></td>
+          <td class="full">TODOS</td>
+          <td><span class="perm">leer</span><span class="perm">escribir</span><span class="perm">aprobar</span><span class="perm">reportar</span></td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+          <td class="none">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Flujo -->
+  <h2>Flujo de Autenticación y Roles</h2>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-text">
+        <strong>Login en HidroSSO con Microsoft 365</strong>
+        <small>El usuario se autentica una sola vez con su cuenta @hidrobart.com</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-text">
+        <strong>Backend consulta Azure AD Graph API</strong>
+        <small>Obtiene perfil de usuario + grupos (ej: HB-SuperAdmin)</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-text">
+        <strong>Mapeo de grupos → OrgRole</strong>
+        <small>"HB-SuperAdmin" contiene "superadmin" → OrgRole: SuperAdmin</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-text">
+        <strong>Sesión creada en Redis (8h TTL)</strong>
+        <small>Contiene: user_id, email, tenant, roles { org, functional, process }</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-text">
+        <strong>Usuario hace clic en app (ej: Costeo360)</strong>
+        <small>/api/sso-launch genera launch token de 60 segundos, un solo uso</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div class="flow-text">
+        <strong>Costeo360 canjea el token</strong>
+        <small>/api/sso-entry → /auth/sso-exchange → recibe session_id → setea cookie hidrosso_sid</small>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">7</div>
+      <div class="flow-text">
+        <strong>Costeo360 obtiene roles vía /auth/session-info</strong>
+        <small>Recibe roles.org, roles.functional, roles.process y aplica permisos en UI</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON -->
+  <h2>Estructura JSON — Sesión en Redis</h2>
+  <pre>{
+  <span class="key">"session_id"</span>: <span class="str">"lt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>,
+  <span class="key">"email"</span>:      <span class="str">"philippe@hidrobart.com"</span>,
+  <span class="key">"name"</span>:       <span class="str">"Philippe"</span>,
+  <span class="key">"tenant"</span>:     <span class="str">"hidrobart.com"</span>,
+  <span class="key">"roles"</span>: {
+    <span class="key">"org"</span>:        [<span class="str">"SuperAdmin"</span>],
+    <span class="key">"functional"</span>: [<span class="str">"Gerencia"</span>],
+    <span class="key">"process"</span>: {
+      <span class="key">"hidroplus"</span>:     [<span class="str">"leer"</span>, <span class="str">"escribir"</span>, <span class="str">"aprobar"</span>, <span class="str">"administrar"</span>, <span class="str">"reportar"</span>, <span class="str">"configurar"</span>],
+      <span class="key">"compras"</span>:       [<span class="str">"leer"</span>, <span class="str">"escribir"</span>, <span class="str">"aprobar"</span>, <span class="str">"administrar"</span>, <span class="str">"reportar"</span>, <span class="str">"configurar"</span>],
+      <span class="key">"configuracion"</span>: [<span class="str">"leer"</span>, <span class="str">"escribir"</span>, <span class="str">"aprobar"</span>, <span class="str">"administrar"</span>, <span class="str">"reportar"</span>, <span class="str">"configurar"</span>]
+      <span class="comment">// ... resto de módulos</span>
+    }
+  }
+}</pre>
+
+  <!-- Code -->
+  <h2>Implementación en Apps (TypeScript)</h2>
+  <pre><span class="comment">// 1. Obtener roles del usuario desde HidroSSO</span>
+const res = await fetch(`${HIDROSSO_API}/auth/session-info`, {
+  headers: { Cookie: `hidrosso_sid=${sessionId}` }
+});
+const { roles } = await res.json();
+
+<span class="comment">// 2. Verificar OrgRole</span>
+const isSuperAdmin = roles.org.includes(<span class="str">"SuperAdmin"</span>);
+const isAdmin      = isSuperAdmin || roles.org.includes(<span class="str">"Admin"</span>);
+const isManager    = isAdmin || roles.org.includes(<span class="str">"Manager"</span>);
+
+<span class="comment">// 3. Verificar permiso en módulo específico</span>
+const canApprove  = (mod: string) => roles.process[mod]?.includes(<span class="str">"aprobar"</span>)    ?? false;
+const canConfigure = (mod: string) => roles.process[mod]?.includes(<span class="str">"configurar"</span>) ?? false;
+const canWrite    = (mod: string) => roles.process[mod]?.includes(<span class="str">"escribir"</span>)   ?? false;</pre>
+
+  <footer>
+    HidroSSO Role Schema v1.0 &nbsp;·&nbsp; Hidrobart SA de CV &nbsp;·&nbsp; 2026-04-21
+  </footer>
+
+</div>
+</body>
+</html>
