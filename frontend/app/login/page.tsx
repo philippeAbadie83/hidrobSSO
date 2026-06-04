@@ -44,7 +44,7 @@ function LoginContent() {
     setLoading(true);
     setError(null);
     try {
-      await signIn("azure-ad", {
+      await signIn("microsoft-entra-id", {
         callbackUrl,
         redirect: true,
       });

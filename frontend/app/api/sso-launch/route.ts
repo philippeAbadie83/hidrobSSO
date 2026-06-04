@@ -1,21 +1,19 @@
 /**
  * GET /api/sso-launch?app=costeo360
- * Lee el session_id del JWT de NextAuth (server-side) y crea un launch token
- * de 60s via el FastAPI de HidroSSO. Devuelve la URL de redirección.
+ * Lee la sesión (v5) y crea un launch token de 60s via el FastAPI de HidroSSO.
  */
-import { NextRequest, NextResponse } from "next/server";
-import { getToken }                  from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import { auth } from "../../../auth";
 
 const AUTH_API = process.env.NEXT_PUBLIC_AUTH_API ?? "http://localhost:8000";
 
-export async function GET(req: NextRequest) {
-  // 1. Leer el JWT completo (server-side — hidrobartSessionId NO está en session.user)
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) {
+export async function GET(req: Request) {
+  const session = await auth();
+  if (!session) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  const sessionId = token.hidrobartSessionId as string | undefined;
+  const sessionId = (session as any).hidrobartSessionId as string | undefined;
   if (!sessionId) {
     return NextResponse.json(
       { error: "Sesión Hidrobart no disponible — vuelve a iniciar sesión" },
@@ -23,21 +21,18 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // 2. App destino
-  const app = req.nextUrl.searchParams.get("app")?.toLowerCase();
+  const app = new URL(req.url).searchParams.get("app")?.toLowerCase();
   if (!app) {
     return NextResponse.json({ error: "Parámetro 'app' requerido" }, { status: 400 });
   }
 
-  // 3. Pedir launch token al FastAPI
   try {
     const res = await fetch(`${AUTH_API}/auth/sso-launch`, {
-      method:  "POST",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ session_id: sessionId, app_id: app }),
-      signal:  AbortSignal.timeout(5_000),
+      body: JSON.stringify({ session_id: sessionId, app_id: app }),
+      signal: AbortSignal.timeout(5_000),
     });
-
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       return NextResponse.json(
@@ -45,7 +40,6 @@ export async function GET(req: NextRequest) {
         { status: res.status }
       );
     }
-
     const data = await res.json();
     return NextResponse.json({ redirect_url: data.redirect_url });
   } catch {
@@ -55,3 +49,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+

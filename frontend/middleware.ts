@@ -1,55 +1,47 @@
 /**
- * Middleware de autenticación — protege todas las rutas excepto login
- * Se ejecuta en el Edge Runtime (rápido, antes de renderizar)
+ * Middleware de autenticación — next-auth v5 (Auth.js)
  */
-import { withAuth } from "next-auth/middleware";
+import { auth } from "./auth";
 import { NextResponse } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const pathname = req.nextUrl.pathname;
+const ALLOWED_DOMAINS = ["hidrobart.com", "hidrobart.com.mx", "hidrobart.com.br"];
 
-    // Verificar dominio si el usuario está autenticado
-    if (token?.email) {
-      const domain = (token.email as string).split("@")[1]?.toLowerCase();
-      const allowedDomains = ["hidrobart.com", "hidrobart.com.mx", "hidrobart.com.br"];
+export default auth((req) => {
+  const token = req.auth;
 
-      if (!allowedDomains.includes(domain)) {
-        const loginUrl = new URL("/auth/error?error=AccessDenied", req.url);
-        return NextResponse.redirect(loginUrl);
-      }
-    }
-
-    // Respuesta normal
-    const response = NextResponse.next();
-
-    // Headers de seguridad
-    response.headers.set("X-Frame-Options", "DENY");
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
-    );
-
-    return response;
-  },
-  {
-    callbacks: {
-      authorized({ token }) {
-        return !!token;
-      },
-    },
+  // No autenticado → al login
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
-);
 
-// Rutas que requieren autenticación
+  // Verificar dominio permitido
+  const email = token.user?.email;
+  if (email) {
+    const domain = email.split("@")[1]?.toLowerCase();
+    if (!ALLOWED_DOMAINS.includes(domain)) {
+      return NextResponse.redirect(
+        new URL("/auth/error?error=AccessDenied", req.url)
+      );
+    }
+  }
+
+  // Headers de seguridad
+  const response = NextResponse.next();
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  );
+
+  return response;
+});
+
 export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
     "/api/protected/:path*",
-    // Excluir rutas públicas:
-    // /login, /auth/*, /api/auth/*, /_next/*, /favicon.svg
   ],
 };
+
