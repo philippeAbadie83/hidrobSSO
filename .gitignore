@@ -50,3 +50,8 @@ build/
 backend/.env.backup
 backend/.env
 frontend/.env.local
+
+.next/
+__pycache__/
+*.pyc
+*.bak
