@@ -28,6 +28,7 @@ ALLOWED_APPS = {
     "unidum":       "https://unidum.hidrobart.com/auth/sso",
     "crm2":         "https://crm2.hidrobart.com/auth/sso",
     "hidropluspro": "https://hidropluspro.hidrobart.com/auth/sso",
+    "dir360":       "https://dir360.hidrobart.com/auth/sso",
 }
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
