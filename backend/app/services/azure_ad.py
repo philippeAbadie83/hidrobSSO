@@ -173,6 +173,11 @@ class AzureADService:
             "super_admin": "SuperAdmin",
             "admin": "Admin",
             "administrator": "Admin",
+            # ── Roles propios Hidrobart (grupos HBS-*) ──
+            "operador":    "Operador",
+            "compras":     "Compras",
+            "coordinador": "Coordinador",
+            "vendedor":    "Vendedor",
             "manager": "Manager",
             "gerente": "Manager",
             "employee": "Employee",
@@ -191,9 +196,9 @@ class AzureADService:
                 if keyword in name:
                     org_roles.add(role)
                     break
-        # Si no hay rol, asignar Employee por defecto
+        # Si no hay rol, asignar Vendedor por defecto (minimo privilegio)
         if not org_roles:
-            org_roles.add("Employee")
+            org_roles.add("Vendedor")
         return list(org_roles)
 
 
