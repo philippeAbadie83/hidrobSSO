@@ -29,10 +29,19 @@ interface App {
 }
 
 // ── Visibilidad por tier ───────────────────────────────────────────────────────
+// Niveles de rol que desbloquean cada tier de tarjeta.
+//   public → todos          team → operativos + admin          admin → solo SuperAdmin/Admin
+// El tier solo controla si SE VE la tarjeta/lanzador; los permisos finos viven dentro de cada app.
+const ROLES_ADMIN = ["SuperAdmin", "Admin"];
+const ROLES_TEAM  = [
+  "SuperAdmin", "Admin", "Manager",
+  "Coordinador", "Operador", "Compras", "Vendedor", "CustomerSuccess", "Observador",
+];
+
 function canSee(app: App, orgRoles: string[]): boolean {
   if (app.tier === "public") return true;
-  if (app.tier === "team")   return orgRoles.some(r => ["Manager","Admin","SuperAdmin"].includes(r));
-  if (app.tier === "admin")  return orgRoles.some(r => ["Admin","SuperAdmin"].includes(r));
+  if (app.tier === "team")   return orgRoles.some(r => ROLES_TEAM.includes(r));
+  if (app.tier === "admin")  return orgRoles.some(r => ROLES_ADMIN.includes(r));
   return true;
 }
 
@@ -62,11 +71,21 @@ const TIER_BADGE: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  SuperAdmin: "bg-red-500/20 text-red-300 border-red-400/40",
-  Admin:      "bg-orange-500/20 text-orange-300 border-orange-400/40",
-  Manager:    "bg-yellow-500/20 text-yellow-300 border-yellow-400/40",
-  Employee:   "bg-blue-500/20 text-blue-300 border-blue-400/40",
-  External:   "bg-gray-500/20 text-gray-300 border-gray-400/40",
+  // Rango (ven todo)
+  SuperAdmin:      "bg-red-500/20 text-red-300 border-red-400/40",
+  Admin:           "bg-orange-500/20 text-orange-300 border-orange-400/40",
+  // Roles operativos Hidrobart (grupos HBS-*)
+  Coordinador:     "bg-amber-500/20 text-amber-300 border-amber-400/40",
+  Operador:        "bg-teal-500/20 text-teal-300 border-teal-400/40",
+  Compras:         "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+  Vendedor:        "bg-blue-500/20 text-blue-300 border-blue-400/40",
+  CustomerSuccess: "bg-emerald-500/20 text-emerald-300 border-emerald-400/40",
+  Observador:      "bg-slate-500/20 text-slate-300 border-slate-400/40",
+  Externo:         "bg-gray-500/20 text-gray-300 border-gray-400/40",
+  // Genéricos heredados (Azure)
+  Manager:         "bg-yellow-500/20 text-yellow-300 border-yellow-400/40",
+  Employee:        "bg-blue-500/20 text-blue-300 border-blue-400/40",
+  External:        "bg-gray-500/20 text-gray-300 border-gray-400/40",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
