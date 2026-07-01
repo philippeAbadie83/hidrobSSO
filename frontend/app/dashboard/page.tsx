@@ -25,6 +25,7 @@ interface App {
   ssoId:  string | null;
   active: boolean;
   tier:   "public" | "team" | "admin";
+  roles?: string[];   // opcional: lista blanca de org-roles; si está, tiene prioridad sobre tier
   order:  number;
 }
 
@@ -39,6 +40,8 @@ const ROLES_TEAM  = [
 ];
 
 function canSee(app: App, orgRoles: string[]): boolean {
+  // Si la app define su propia lista blanca de roles, esa manda (ignora el tier).
+  if (app.roles && app.roles.length) return orgRoles.some(r => app.roles!.includes(r));
   if (app.tier === "public") return true;
   if (app.tier === "team")   return orgRoles.some(r => ROLES_TEAM.includes(r));
   if (app.tier === "admin")  return orgRoles.some(r => ROLES_ADMIN.includes(r));
