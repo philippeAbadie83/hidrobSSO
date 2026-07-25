@@ -58,6 +58,7 @@ const ICON_GRADIENT: Record<string, string> = {
   crm2:      "linear-gradient(135deg, #0072CE 0%, #13294B 100%)",
   crm1:      "linear-gradient(135deg, #3A5DAE 0%, #6CACE4 100%)",
   hidroplus: "linear-gradient(135deg, #6CACE4 0%, #2C5697 100%)",
+  docs:      "linear-gradient(135deg, #6CACE4 0%, #0072CE 100%)",
 };
 
 // ── Estilos de badges ─────────────────────────────────────────────────────────
