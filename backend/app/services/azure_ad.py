@@ -174,12 +174,18 @@ class AzureADService:
             "admin": "Admin",
             "administrator": "Admin",
             # ── Roles propios Hidrobart (grupos HBS-*) ──
+            # El orden importa: gana la PRIMERA palabra que aparezca en el
+            # nombre del grupo. Las mas especificas van antes que las generales.
+            "serviciocliente": "ServicioCliente",   # HBS-ServicioCliente
+            "observador":  "Observador",            # HBS-Observador
             "operador":    "Operador",
             "compras":     "Compras",
             "coordinador": "Coordinador",
             "vendedor":    "Vendedor",
             "manager": "Manager",
-            "gerente": "Manager",
+            # HBS-Gerente es gerente de ventas, NO coordinador. Antes caia en
+            # "Manager", que tbl_cat_rol manda a supervisor_ventas.
+            "gerente": "GerenteVentas",
             "employee": "Employee",
             "empleado": "Employee",
             "staff": "Employee",
