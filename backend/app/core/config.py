@@ -69,6 +69,17 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./hidrobart_roles.db"
     USE_DB_FOR_ROLES: bool = True
 
+    # ── Base de permisos del ecosistema (hidrobart_sso) ──────────────────────
+    # La consumen SOLO los endpoints /sso/permisos, /sso/menu y /sso/resolver.
+    # Si no está configurada o no responde, esos endpoints contestan 503 y
+    # todo lo demás sigue funcionando igual.
+    SSO_DB_HOST: str = ""
+    SSO_DB_PORT: int = 3306
+    SSO_DB_USER: str = ""
+    SSO_DB_PASSWORD: str = ""
+    SSO_DB_NAME: str = "hidrobart_sso"
+    SSO_DB_TIMEOUT: int = 5     # segundos, para no colgar una petición
+
     class Config:
         env_file = ".env"
         case_sensitive = True

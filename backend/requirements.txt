@@ -11,6 +11,11 @@ cryptography==43.0.3
 # Redis
 redis[hiredis]==5.2.1
 
+# Base de permisos (hidrobart_sso)
+# Mismas versiones que costeo360-api, dir360 y las demas
+SQLAlchemy==2.0.36
+PyMySQL==1.1.1
+
 # HTTP client
 httpx==0.28.0
 
