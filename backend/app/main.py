@@ -10,7 +10,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.routers import auth, users, sso_router as sso, permisos
+from app.routers import auth, users, sso_router as sso, permisos, bitacora
 from app.services.redis_service import redis_service
 
 # Configurar logging
@@ -86,6 +86,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(sso.router)
 app.include_router(permisos.router)   # lee hidrobart_sso; aditivo
+app.include_router(bitacora.router)   # bitacora de accesos; aditivo
 
 
 # ── Health & Info ─────────────────────────────────────────────────────────────

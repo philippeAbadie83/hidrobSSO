@@ -9,11 +9,12 @@ import json
 import secrets
 import logging
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request
 from pydantic import BaseModel
 from app.services.redis_service import redis_service
 from app.services.azure_ad import azure_ad_service
 from app.services.roles import roles_service
+from app.services import bl_bitacora
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,8 @@ class ExchangeResponse(BaseModel):
 
 # ── 1. Login con token MS365 ──────────────────────────────────────────────────
 @router.post("/ms-login")
-async def ms_login(body: MsLoginRequest):
+async def ms_login(body: MsLoginRequest, request: Request,
+                   tareas: BackgroundTasks):
     """
     Acepta el access_token de MS365 (desde NextAuth),
     obtiene perfil + grupos via Graph, crea sesión en Redis.
@@ -61,10 +63,12 @@ async def ms_login(body: MsLoginRequest):
         ms_groups  = await azure_ad_service.get_user_groups(body.access_token)
     except Exception as e:
         logger.warning(f"ms-login: token inválido — {e}")
+        bl_bitacora.anotar_fallo(request, f"token MS365 invalido: {e}")
         raise HTTPException(status_code=401, detail="Token MS365 inválido")
 
     email = ms_profile.get("mail") or ms_profile.get("userPrincipalName", "")
     if not azure_ad_service.validate_user_domain(email):
+        bl_bitacora.anotar_fallo(request, "dominio no autorizado", email=email)
         raise HTTPException(status_code=403, detail="Dominio no autorizado")
 
     user_id   = ms_profile.get("id", "")
@@ -101,6 +105,10 @@ async def ms_login(body: MsLoginRequest):
         session_id,
     )
 
+    # La bitacora es un testigo, no un guardia: va en segundo plano para no
+    # meterle espera al login, y si MySQL esta caido solo se pierde el renglon.
+    tareas.add_task(bl_bitacora.anotar_login, request, email, user_name,
+                    ms_profile, org_roles, session_id)
     logger.info(f"ms-login OK: {email}")
     return {
         "session_id": session_id,
@@ -113,7 +121,8 @@ async def ms_login(body: MsLoginRequest):
 
 # ── 2. Crear launch token ─────────────────────────────────────────────────────
 @router.post("/sso-launch", response_model=LaunchResponse)
-async def sso_launch(body: SsoLaunchRequest):
+async def sso_launch(body: SsoLaunchRequest, request: Request,
+                     tareas: BackgroundTasks):
     """
     Crea un launch token de 60s para redirigir al usuario a otra app.
     Llamado desde Next.js de HidroSSO (server-to-server).
@@ -137,6 +146,8 @@ async def sso_launch(body: SsoLaunchRequest):
             "issued_at":  datetime.now(timezone.utc).isoformat(),
         }),
     )
+    tareas.add_task(bl_bitacora.anotar_launch, request,
+                    session.get("email", ""), app_id, body.session_id)
     logger.info(f"sso-launch: {app_id} lt={lt[:12]}...")
     return LaunchResponse(redirect_url=f"{ALLOWED_APPS[app_id]}?lt={lt}")
 
