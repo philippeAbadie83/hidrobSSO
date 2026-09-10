@@ -158,6 +158,40 @@ def actividad_hoy() -> list[dict]:
     return _todos("SELECT * FROM vw_sso_actividad_hoy")
 
 
+def res_persona() -> list[dict]:
+    return _todos(
+        "SELECT * FROM vw_sso_res_persona ORDER BY ultimo_login DESC")
+
+
+def res_app() -> list[dict]:
+    return _todos(
+        "SELECT * FROM vw_sso_res_app ORDER BY personas_distintas DESC, app_clave")
+
+
+def res_persona_app(email: str | None = None,
+                    app_clave: str | None = None) -> list[dict]:
+    cond, params = [], {}
+    if email:
+        cond.append("email = :email");   params["email"] = email
+    if app_clave:
+        cond.append("app_clave = :app"); params["app"] = app_clave
+    donde = ("WHERE " + " AND ".join(cond)) if cond else ""
+    return _todos(
+        f"SELECT * FROM vw_sso_res_persona_app {donde} "
+        "ORDER BY email, app_clave", params)
+
+
+def res_mes(meses: int = 12) -> list[dict]:
+    # LEFT(...,7) en vez de DATE_FORMAT con '%Y-%m': el signo % es especial
+    # para el driver y tendria que escaparse distinto segun cual se use.
+    # Asi no depende de eso. LEFT de un datetime da 'AAAA-MM'.
+    return _todos(
+        "SELECT * FROM vw_sso_res_mes "
+        "WHERE mes >= LEFT(DATE_SUB(NOW(), INTERVAL :meses MONTH), 7) "
+        "ORDER BY mes DESC, app_clave",
+        {"meses": max(1, min(meses, 60))})
+
+
 def permiso_vs_uso(app_clave: str) -> list[dict]:
     """Permiso otorgado contra permiso usado. La consulta que justifica que
     recurso_clave sea la misma llave en permisos y en bitácora."""

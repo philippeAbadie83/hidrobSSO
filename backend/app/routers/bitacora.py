@@ -10,6 +10,12 @@ HidroSSO — Bitácora de accesos
     GET /sso/actividad            resumen de hoy
     GET /sso/apps/{app}/uso       permiso otorgado contra permiso usado
 
+  RESUMENES — la bitacora servida ya masticada
+    GET /sso/resumen/personas     quien entra, cada cuando, cuanto se mueve
+    GET /sso/resumen/apps         cuanta gente usa cada app de verdad
+    GET /sso/resumen/uso          el cruce persona x app
+    GET /sso/resumen/meses        la tendencia mes a mes
+
 El login y el salto entre apps se registran solos desde sso_router; una app
 no tiene que hacer nada para eso. Lo único que sí debe reportar es qué
 pantalla abrió su usuario, porque HidroSSO no puede saberlo.
@@ -121,3 +127,61 @@ async def uso(app: str = Path(..., description="app_clave")):
         return {"app": app, "uso": bl_bitacora.permiso_vs_uso(app)}
     except BaseNoDisponible:
         raise HTTPException(status_code=503, detail=_SIN_BASE)
+
+
+# ══ RESUMENES ═════════════════════════════════════════════════════════════════
+# Son vistas de SQL, no tablas: se calculan al momento, siempre estan al dia y
+# no hay ningun proceso que se pueda quedar atorado. A este volumen siguen
+# siendo instantaneas. El dia que sean decenas de millones de filas, se
+# materializan estas mismas consultas y los endpoints ni se enteran.
+
+@router.get("/resumen/personas")
+async def resumen_personas():
+    """Quien entra, cada cuando, y que tanto se mueve por el ecosistema.
+
+    Ojo a `dias_sin_entrar`: es la columna que delata cuentas que ya nadie
+    usa y que siguen con acceso.
+    """
+    try:
+        filas = bl_bitacora.res_persona()
+    except BaseNoDisponible:
+        raise HTTPException(status_code=503, detail=_SIN_BASE)
+    return {"total": len(filas), "personas": filas}
+
+
+@router.get("/resumen/apps")
+async def resumen_apps():
+    """Cuanta gente usa cada app de verdad.
+
+    La columna que importa es `personas_distintas`. Una app con dos usuarios
+    reales no justifica lo que cuesta mantenerla, y eso hoy solo se sabe de
+    oido.
+    """
+    try:
+        filas = bl_bitacora.res_app()
+    except BaseNoDisponible:
+        raise HTTPException(status_code=503, detail=_SIN_BASE)
+    return {"total": len(filas), "apps": filas}
+
+
+@router.get("/resumen/uso")
+async def resumen_uso(
+    email: str | None = Query(None, description="filtrar por persona"),
+    app: str | None = Query(None, description="filtrar por app"),
+):
+    """El cruce persona x app: quien usa que, con que rol y desde cuando."""
+    try:
+        filas = bl_bitacora.res_persona_app(email=email, app_clave=app)
+    except BaseNoDisponible:
+        raise HTTPException(status_code=503, detail=_SIN_BASE)
+    return {"total": len(filas), "uso": filas}
+
+
+@router.get("/resumen/meses")
+async def resumen_meses(meses: int = Query(12, ge=1, le=60)):
+    """La tendencia mes a mes, por app. Para ver si algo crece o se muere."""
+    try:
+        filas = bl_bitacora.res_mes(meses)
+    except BaseNoDisponible:
+        raise HTTPException(status_code=503, detail=_SIN_BASE)
+    return {"meses": meses, "total": len(filas), "resumen": filas}

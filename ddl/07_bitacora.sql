@@ -67,12 +67,37 @@ CREATE TABLE IF NOT EXISTS tbl_sso_bitacora (
    grupos_azure es la columna que desbloquea preguntar por correo SIN una
    sesion abierta: hoy los grupos de alguien solo existen dentro de su
    sesion de Redis, que muere a las 8 horas.                                */
-ALTER TABLE tbl_sso_persona
-  ADD COLUMN IF NOT EXISTS grupos_azure VARCHAR(400) NULL
-      COMMENT 'etiquetas que produjo HidroSSO en el ultimo login, separadas por coma',
-  ADD COLUMN IF NOT EXISTS ultima_ip VARCHAR(45) NULL,
-  ADD COLUMN IF NOT EXISTS logins INT NOT NULL DEFAULT 0
-      COMMENT 'cuantas veces ha entrado en total';
+/* Nota: MySQL 8 NO soporta ADD COLUMN IF NOT EXISTS —eso es de MariaDB—,
+   asi que cada columna se agrega solo si falta, consultando el catalogo.
+   Es mas verboso pero deja el script re-ejecutable sin tronar.            */
+
+SET @t := 'tbl_sso_persona';
+
+SET @existe := (SELECT COUNT(*) FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @t
+                  AND COLUMN_NAME = 'grupos_azure');
+SET @sql := IF(@existe = 0,
+  "ALTER TABLE tbl_sso_persona ADD COLUMN grupos_azure VARCHAR(400) NULL
+     COMMENT 'etiquetas que produjo HidroSSO en el ultimo login, separadas por coma'",
+  'DO 0');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
+
+SET @existe := (SELECT COUNT(*) FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @t
+                  AND COLUMN_NAME = 'ultima_ip');
+SET @sql := IF(@existe = 0,
+  "ALTER TABLE tbl_sso_persona ADD COLUMN ultima_ip VARCHAR(45) NULL",
+  'DO 0');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
+
+SET @existe := (SELECT COUNT(*) FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @t
+                  AND COLUMN_NAME = 'logins');
+SET @sql := IF(@existe = 0,
+  "ALTER TABLE tbl_sso_persona ADD COLUMN logins INT NOT NULL DEFAULT 0
+     COMMENT 'cuantas veces ha entrado en total'",
+  'DO 0');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
 
 /* ── 3. Vista de cortesia: quien entro hoy ────────────────────────────────── */
 CREATE OR REPLACE VIEW vw_sso_actividad_hoy AS

@@ -3,7 +3,7 @@
  * Lee la sesión (v5) y crea un launch token de 60s via el FastAPI de HidroSSO.
  */
 import { NextResponse } from "next/server";
-import { auth } from "../../../auth";
+import { auth, cabecerasDelVisitante } from "../../../auth";
 
 const AUTH_API = process.env.NEXT_PUBLIC_AUTH_API ?? "http://localhost:8000";
 
@@ -27,9 +27,11 @@ export async function GET(req: Request) {
   }
 
   try {
+    // Misma razon que en ms-login: sin esto la bitacora anota 127.0.0.1.
+    const cab = await cabecerasDelVisitante();
     const res = await fetch(`${AUTH_API}/auth/sso-launch`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...cab },
       body: JSON.stringify({ session_id: sessionId, app_id: app }),
       signal: AbortSignal.timeout(5_000),
     });

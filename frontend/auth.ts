@@ -1,7 +1,28 @@
 import NextAuth from "next-auth";
+import { headers } from "next/headers";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 const ALLOWED_DOMAINS = ["hidrobart.com", "hidrobart.com.mx", "hidrobart.com.br"];
 const AUTH_API = process.env.NEXT_PUBLIC_AUTH_API ?? "http://localhost:8000";
+/**
+ * La IP y el navegador de quien esta entrando, para reenviarselos al backend.
+ * Sin esto la bitacora registra a todo mundo entrando desde 127.0.0.1, que es
+ * nginx, y deja de servir para auditar.
+ * Devuelve {} si se llama fuera del contexto de una peticion.
+ */
+export async function cabecerasDelVisitante(): Promise<Record<string, string>> {
+  try {
+    const h = await headers();
+    const ip = h.get("x-forwarded-for") ?? h.get("x-real-ip") ?? "";
+    const ua = h.get("user-agent") ?? "";
+    const out: Record<string, string> = {};
+    if (ip) out["X-Forwarded-For"] = ip;
+    if (ua) out["X-Client-User-Agent"] = ua;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 function isAllowedDomain(email: string): boolean {
   const domain = email.split("@")[1]?.toLowerCase();
   return ALLOWED_DOMAINS.includes(domain);
@@ -31,9 +52,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       if (msToken && !token.hidrobartSessionId) {
         try {
+          // ms-login se llama de servidor a servidor, asi que el backend solo
+          // veria 127.0.0.1. Se le reenvia la IP y el navegador REALES del
+          // visitante para que la bitacora sirva de algo.
+          const cab = await cabecerasDelVisitante();
           const res = await fetch(`${AUTH_API}/auth/ms-login`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...cab },
             body: JSON.stringify({ access_token: msToken }),
           });
           if (res.ok) {

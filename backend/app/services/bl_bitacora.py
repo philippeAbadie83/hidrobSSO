@@ -36,7 +36,16 @@ def _ip(request) -> str | None:
 
 
 def _navegador(request) -> str | None:
-    return request.headers.get("user-agent") if request is not None else None
+    """El navegador del visitante.
+
+    X-Client-User-Agent va primero a propósito: cuando la llamada viene del
+    Next de HidroSSO (ms-login, sso-launch), el 'user-agent' es el de Node,
+    no el de la persona. El frontend reenvía el real en esa cabecera.
+    """
+    if request is None:
+        return None
+    return (request.headers.get("x-client-user-agent")
+            or request.headers.get("user-agent"))
 
 
 def anotar(evento: str, request=None, **datos) -> bool:
@@ -116,3 +125,21 @@ def actividad_hoy() -> list[dict]:
 
 def permiso_vs_uso(app_clave: str) -> list[dict]:
     return db_bitacora.permiso_vs_uso(app_clave)
+
+
+# ── Los cuatro resumenes ──────────────────────────────────────────────────────
+
+def res_persona() -> list[dict]:
+    return db_bitacora.res_persona()
+
+
+def res_app() -> list[dict]:
+    return db_bitacora.res_app()
+
+
+def res_persona_app(email=None, app_clave=None) -> list[dict]:
+    return db_bitacora.res_persona_app(email=email, app_clave=app_clave)
+
+
+def res_mes(meses: int = 12) -> list[dict]:
+    return db_bitacora.res_mes(meses)
