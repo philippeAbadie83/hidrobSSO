@@ -176,6 +176,11 @@ class AzureADService:
             # ── Roles propios Hidrobart (grupos HBS-*) ──
             # El orden importa: gana la PRIMERA palabra que aparezca en el
             # nombre del grupo. Las mas especificas van antes que las generales.
+            # "securityadm" NO lo atrapa "admin" aunque esa clave se
+            # evalue antes: termina en -adm, no en -admin. Verificado
+            # contra los 16 grupos reales del tenant.
+            "securityadm":  "SecurityAdm",          # HBS-SecurityAdm
+            "securityobs":  "SecurityObs",          # HBS-SecurityObs
             "serviciocliente": "ServicioCliente",   # HBS-ServicioCliente
             "observador":  "Observador",            # HBS-Observador
             "operador":    "Operador",

@@ -38,6 +38,59 @@ router = APIRouter(prefix="/sso", tags=["Bitácora"])
 _SIN_BASE = "Base de permisos no disponible"
 
 
+# Quien entra a la bitacora. Son grupos de Azure, no roles de una app: la
+# bitacora es de todo el ecosistema, y preguntar "que rol tienes en
+# costeo360" para ver los accesos de HBTrade360 no tendria sentido.
+#
+#   SuperAdmin    god en todo, esta incluida
+#   SecurityAdm   administra la bitacora: ve y, cuando existan, actua
+#   SecurityObs   solo mira. Es el auditor que no toca nada
+#
+# Hoy todos los endpoints son de lectura, asi que los tres ven lo mismo.
+# La diferencia entre Adm y Obs se estrena el dia que haya algo que
+# escribir —purgar, marcar revisado, exportar—; se declara desde ahora
+# para que ese dia no haya que repartir permisos de emergencia.
+VEN_BITACORA        = ("SuperAdmin", "SecurityAdm", "SecurityObs")
+ADMINISTRAN_BITACORA = ("SuperAdmin", "SecurityAdm")
+
+
+async def _quien(sid: str) -> tuple[str, list[str]]:
+    datos = await redis_service.get_session(sid)
+    if not datos:
+        raise HTTPException(status_code=401, detail="Sesión inválida o expirada")
+    return datos.get("email", ""), list((datos.get("roles") or {}).get("org") or [])
+
+
+async def puede_ver(sid: str) -> str:
+    """Deja pasar a quien puede LEER la bitacora. Devuelve su correo.
+
+    Guarda correos, IPs y navegadores de personas reales: no puede quedar
+    abierta a quien alcance la URL.
+    """
+    email, org = await _quien(sid)
+    if not any(g in org for g in VEN_BITACORA):
+        raise HTTPException(
+            status_code=403,
+            detail="La bitácora es solo para SuperAdmin, SecurityAdm o SecurityObs",
+        )
+    return email
+
+
+async def puede_administrar(sid: str) -> str:
+    """Deja pasar a quien puede ACTUAR sobre la bitacora. El observador no.
+
+    Todavia no la usa ningun endpoint —no hay nada que escribir— pero
+    existe para que el dia que lo haya, la puerta ya este puesta.
+    """
+    email, org = await _quien(sid)
+    if not any(g in org for g in ADMINISTRAN_BITACORA):
+        raise HTTPException(
+            status_code=403,
+            detail="Requiere SuperAdmin o SecurityAdm",
+        )
+    return email
+
+
 class EventoRequest(BaseModel):
     sid: str = Field(..., description="session_id de HidroSSO")
     app: str = Field(..., description="app_clave, p.ej. costeo360")
@@ -77,6 +130,7 @@ async def evento(body: EventoRequest, request: Request, tareas: BackgroundTasks)
 
 @router.get("/bitacora")
 async def bitacora(
+    sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs"),
     email: str | None = Query(None, description="filtrar por persona"),
     app: str | None = Query(None, description="filtrar por app"),
     evento: str | None = Query(None, description="login · launch · pantalla · ..."),
@@ -84,6 +138,7 @@ async def bitacora(
     limite: int = Query(200, ge=1, le=2000),
 ):
     """Los eventos más recientes, del más nuevo al más viejo."""
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.consultar(email=email, app_clave=app, evento=evento,
                                       dias=dias, limite=limite)
@@ -93,12 +148,13 @@ async def bitacora(
 
 
 @router.get("/personas")
-async def personas():
+async def personas(sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs")):
     """Quiénes han entrado alguna vez, con sus grupos y su último acceso.
 
     Esta lista se llena sola: nadie la captura. Cada ms-login crea o
     actualiza el renglón de esa persona.
     """
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.personas()
     except BaseNoDisponible:
@@ -107,8 +163,9 @@ async def personas():
 
 
 @router.get("/actividad")
-async def actividad():
+async def actividad(sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs")):
     """Resumen de hoy: quién entró, a cuántas apps y cuántas pantallas."""
+    await puede_ver(sid)
     try:
         return {"hoy": bl_bitacora.actividad_hoy()}
     except BaseNoDisponible:
@@ -136,12 +193,13 @@ async def uso(app: str = Path(..., description="app_clave")):
 # materializan estas mismas consultas y los endpoints ni se enteran.
 
 @router.get("/resumen/personas")
-async def resumen_personas():
+async def resumen_personas(sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs")):
     """Quien entra, cada cuando, y que tanto se mueve por el ecosistema.
 
     Ojo a `dias_sin_entrar`: es la columna que delata cuentas que ya nadie
     usa y que siguen con acceso.
     """
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.res_persona()
     except BaseNoDisponible:
@@ -150,13 +208,14 @@ async def resumen_personas():
 
 
 @router.get("/resumen/apps")
-async def resumen_apps():
+async def resumen_apps(sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs")):
     """Cuanta gente usa cada app de verdad.
 
     La columna que importa es `personas_distintas`. Una app con dos usuarios
     reales no justifica lo que cuesta mantenerla, y eso hoy solo se sabe de
     oido.
     """
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.res_app()
     except BaseNoDisponible:
@@ -166,10 +225,12 @@ async def resumen_apps():
 
 @router.get("/resumen/uso")
 async def resumen_uso(
+    sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs"),
     email: str | None = Query(None, description="filtrar por persona"),
     app: str | None = Query(None, description="filtrar por app"),
 ):
     """El cruce persona x app: quien usa que, con que rol y desde cuando."""
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.res_persona_app(email=email, app_clave=app)
     except BaseNoDisponible:
@@ -178,8 +239,12 @@ async def resumen_uso(
 
 
 @router.get("/resumen/meses")
-async def resumen_meses(meses: int = Query(12, ge=1, le=60)):
+async def resumen_meses(
+    sid: str = Query(..., description="session_id — SuperAdmin, SecurityAdm u SecurityObs"),
+    meses: int = Query(12, ge=1, le=60),
+):
     """La tendencia mes a mes, por app. Para ver si algo crece o se muere."""
+    await puede_ver(sid)
     try:
         filas = bl_bitacora.res_mes(meses)
     except BaseNoDisponible:
