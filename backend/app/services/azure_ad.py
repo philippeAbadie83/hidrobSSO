@@ -209,9 +209,13 @@ class AzureADService:
         # dado. Fue el caso de Alberto Gomez: coordinador en el grupo de
         # rol, pero el sistema lo entraba como admin.
         #
-        # Los grupos de rol se llaman HBS-* (y HB-*, la familia vieja).
-        # Cualquier otro se ignora, pase lo que pase en su nombre.
-        PREFIJOS_ROL = ("hbs-", "hb-")
+        # Los grupos de rol del sistema son HBS-*, y SOLO esos.
+        #
+        # Los HB-* (sin S) son grupos de CORREO —listas de distribucion—, no
+        # de permisos. Que HB-Admin y HB-Manager existan no significa que
+        # quien este ahi sea administrador: significa que recibe esos
+        # correos. Eso es justo lo que le pasaba a Alberto Gomez.
+        PREFIJOS_ROL = ("hbs-",)
 
         org_roles = set()
         for group in groups:
