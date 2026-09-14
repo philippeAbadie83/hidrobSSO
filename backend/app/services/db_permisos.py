@@ -86,13 +86,22 @@ def get_rol_por_asignacion(email: str, app_clave: str) -> Optional[str]:
     return fila["rol_clave"] if fila else None
 
 
-def get_rol_por_grupo(org_roles: list[str], app_clave: str) -> Optional[str]:
+def get_rol_por_grupo(org_roles: list[str], app_clave: str) -> Optional[dict]:
     """El rol de mayor privilegio entre los grupos de Azure que trae la sesión.
 
-    Mismo criterio que hidrobart_costeo.sp_resolver_rol: gana acceso_total,
+    Devuelve {rol_clave, acceso_total} — el acceso total sale de la fila del
+    GRUPO, no del rol. Asi lo hizo Costeo360 desde siempre:
+
+        grupo SuperAdmin -> rol "admin" + acceso_total 1
+        grupo Admin      -> rol "admin" + acceso_total 0
+
+    Los dos entran con el mismo rol y solo uno es god. Separarlos en dos
+    roles distintos cambia el NOMBRE con el que entra el SuperAdmin, y ese
+    nombre esta escrito a mano en las pantallas.
+
+    Mismo criterio de desempate que sp_resolver_rol: gana acceso_total,
     luego el orden menor. El desempate final por rol_clave es para que dos
-    filas empatadas den siempre el mismo resultado, sin depender del orden
-    físico de la tabla.
+    filas empatadas den siempre el mismo resultado.
     """
     # Un parámetro numerado por grupo (:g0, :g1, ...). Los nombres los ponemos
     # nosotros, los valores los escapa SQLAlchemy.
@@ -100,14 +109,14 @@ def get_rol_por_grupo(org_roles: list[str], app_clave: str) -> Optional[str]:
     params: dict = {"app": app_clave}
     params.update({f"g{i}": g for i, g in enumerate(org_roles)})
     fila = _uno(
-        "SELECT g.rol_clave FROM tbl_sso_grupo_rol g "
+        "SELECT g.rol_clave, g.acceso_total FROM tbl_sso_grupo_rol g "
         "JOIN tbl_sso_rol r ON r.app_clave = g.app_clave AND r.rol_clave = g.rol_clave "
         "WHERE g.app_clave = :app AND g.activo = 1 AND r.activo = 1 "
         f"  AND g.grupo_azure IN ({marcas}) "
-        "ORDER BY r.acceso_total DESC, r.orden ASC, g.rol_clave ASC LIMIT 1",
+        "ORDER BY g.acceso_total DESC, r.orden ASC, g.rol_clave ASC LIMIT 1",
         params,
     )
-    return fila["rol_clave"] if fila else None
+    return dict(fila) if fila else None
 
 
 # ── La matriz ─────────────────────────────────────────────────────────────────

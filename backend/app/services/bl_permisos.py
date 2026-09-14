@@ -41,13 +41,20 @@ def resolver_rol(email: str, org_roles: list[str], app_clave: str) -> dict:
     rol_clave = db_permisos.get_rol_por_asignacion(email, app_clave) if email else None
     origen = "asignacion"
 
+    # El acceso total viene de la fila del GRUPO, no del rol: grupo SuperAdmin
+    # y grupo Admin entran los dos como "admin" y solo el primero es god.
+    god_por_grupo = 0
+
     if not rol_clave:
         # 2. App cerrada y sin asignación = no entra
         if app["requiere_asig"]:
             return _no_entra("sin-asignacion")
         # 3. Red de seguridad: los grupos de Azure
         if org_roles:
-            rol_clave = db_permisos.get_rol_por_grupo(org_roles, app_clave)
+            g = db_permisos.get_rol_por_grupo(org_roles, app_clave)
+            if g:
+                rol_clave = g["rol_clave"]
+                god_por_grupo = int(g.get("acceso_total") or 0)
         origen = "grupo-azure"
 
     # 4. Último recurso: el rol por defecto de la app
@@ -68,7 +75,9 @@ def resolver_rol(email: str, org_roles: list[str], app_clave: str) -> dict:
     return {
         "rol": rol["rol_clave"],
         "etiqueta": rol["etiqueta"],
-        "acceso_total": int(rol["acceso_total"]),
+        # Gana el que sea 1: hoy lo otorga el grupo, pero si algun dia un rol
+        # vuelve a traerlo tambien se respeta.
+        "acceso_total": max(int(rol["acceso_total"]), god_por_grupo),
         "origen": origen,
         "entra": True,
     }
