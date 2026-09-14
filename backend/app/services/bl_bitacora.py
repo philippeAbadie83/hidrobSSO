@@ -62,7 +62,8 @@ def anotar(evento: str, request=None, **datos) -> bool:
 
 
 def anotar_login(request, email: str, nombre: str, ms_profile: dict,
-                 org_roles: list[str], session_id: str) -> None:
+                 org_roles: list[str], session_id: str,
+                 ms_groups: list | None = None) -> None:
     """Lo que pasa en cada ms-login: se registra a la persona y el evento.
 
     Se llama en segundo plano (BackgroundTasks) para no meterle ni un
@@ -70,6 +71,14 @@ def anotar_login(request, email: str, nombre: str, ms_profile: dict,
     pasa es que se pierda el renglón: la sesión ya se creó en Redis.
     """
     grupos = ",".join(org_roles or [])
+    # Los nombres CRUDOS, sin filtrar ni mapear. Sin esto no hay forma de
+    # saber de donde salio una etiqueta: cuando Alberto Gomez aparecio como
+    # admin, la tabla decia "Admin" y hubo que deducir que venia de un grupo
+    # ajeno al rol. Con esto se contesta con un SELECT.
+    crudos = ",".join(
+        (g.get("displayName") or "") for g in (ms_groups or [])
+        if g.get("displayName")
+    )
     db_bitacora.upsert_persona(
         email=email,
         nombre=nombre,
@@ -77,6 +86,7 @@ def anotar_login(request, email: str, nombre: str, ms_profile: dict,
         puesto=(ms_profile or {}).get("jobTitle"),
         area=(ms_profile or {}).get("department"),
         grupos_azure=grupos,
+        grupos_crudos=crudos,
         ip=_ip(request),
     )
     anotar("login", request, email=email, session_id=session_id, detalle=grupos)

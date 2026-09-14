@@ -108,7 +108,7 @@ async def ms_login(body: MsLoginRequest, request: Request,
     # La bitacora es un testigo, no un guardia: va en segundo plano para no
     # meterle espera al login, y si MySQL esta caido solo se pierde el renglon.
     tareas.add_task(bl_bitacora.anotar_login, request, email, user_name,
-                    ms_profile, org_roles, session_id)
+                    ms_profile, org_roles, session_id, ms_groups)
     logger.info(f"ms-login OK: {email}")
     return {
         "session_id": session_id,

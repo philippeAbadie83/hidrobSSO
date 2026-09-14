@@ -199,10 +199,26 @@ class AzureADService:
             "externo": "External",
             "proveedor": "External",
         }
+        # SOLO los grupos que siguen la convencion de rol de Hidrobart.
+        #
+        # Antes se miraba CUALQUIER grupo de la persona —equipos de Teams,
+        # listas de distribucion, grupos de Microsoft 365— y se buscaba la
+        # palabra dentro del nombre. Un grupo llamado "Administracion",
+        # "Administrativos" o "Managers Comerciales" convertia a quien
+        # estuviera en el en Admin o Manager sin que nadie se lo hubiera
+        # dado. Fue el caso de Alberto Gomez: coordinador en el grupo de
+        # rol, pero el sistema lo entraba como admin.
+        #
+        # Los grupos de rol se llaman HBS-* (y HB-*, la familia vieja).
+        # Cualquier otro se ignora, pase lo que pase en su nombre.
+        PREFIJOS_ROL = ("hbs-", "hb-")
+
         org_roles = set()
         for group in groups:
             name = (group.get("displayName") or "").lower()
-            # Buscar coincidencias en el nombre del grupo
+            if not name.startswith(PREFIJOS_ROL):
+                continue
+            # Dentro de los de rol, la primera palabra que aparezca manda
             for keyword, role in role_map.items():
                 if keyword in name:
                     org_roles.add(role)

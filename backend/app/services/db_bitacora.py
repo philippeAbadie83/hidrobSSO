@@ -70,6 +70,7 @@ def upsert_persona(
     puesto: str | None = None,
     area: str | None = None,
     grupos_azure: str | None = None,
+    grupos_crudos: str | None = None,
     ip: str | None = None,
 ) -> bool:
     """Crea o actualiza a la persona en cada login.
@@ -82,16 +83,17 @@ def upsert_persona(
     """
     return _escribir(
         "INSERT INTO tbl_sso_persona "
-        "(email, azure_uuid, nombre, puesto, area, grupos_azure, ultima_ip, "
-        " primer_login, ultimo_login, logins) "
-        "VALUES (:email, :uuid, :nombre, :puesto, :area, :grupos, :ip, "
-        "        NOW(), NOW(), 1) "
+        "(email, azure_uuid, nombre, puesto, area, grupos_azure, "
+        " grupos_crudos, ultima_ip, primer_login, ultimo_login, logins) "
+        "VALUES (:email, :uuid, :nombre, :puesto, :area, :grupos, "
+        "        :crudos, :ip, NOW(), NOW(), 1) "
         "ON DUPLICATE KEY UPDATE "
         "  azure_uuid   = COALESCE(VALUES(azure_uuid), azure_uuid), "
         "  nombre       = VALUES(nombre), "
         "  puesto       = COALESCE(VALUES(puesto), puesto), "
         "  area         = COALESCE(VALUES(area), area), "
-        "  grupos_azure = VALUES(grupos_azure), "
+        "  grupos_azure  = VALUES(grupos_azure), "
+        "  grupos_crudos = VALUES(grupos_crudos), "
         "  ultima_ip    = VALUES(ultima_ip), "
         "  primer_login = COALESCE(primer_login, NOW()), "
         "  ultimo_login = NOW(), "
@@ -103,6 +105,7 @@ def upsert_persona(
             "puesto": (puesto or None) and puesto[:80],
             "area": (area or None) and area[:60],
             "grupos": (grupos_azure or None) and grupos_azure[:400],
+            "crudos": (grupos_crudos or None) and grupos_crudos[:1000],
             "ip": (ip or None) and ip[:45],
         },
     )
@@ -148,8 +151,8 @@ def consultar(
 def personas() -> list[dict]:
     """Quiénes han entrado alguna vez, y cuándo fue la última."""
     return _todos(
-        "SELECT email, nombre, puesto, area, grupos_azure, logins, "
-        "       primer_login, ultimo_login, ultima_ip, activo "
+        "SELECT email, nombre, puesto, area, grupos_azure, grupos_crudos, "
+        "       logins, primer_login, ultimo_login, ultima_ip, activo "
         "FROM tbl_sso_persona ORDER BY ultimo_login DESC"
     )
 
