@@ -1,0 +1,14 @@
+{
+  "actualizado": "2026-08-10",
+  "nota": "Tablero privado de avance. La lista es la misma de data/apps.json — no se agregan proyectos aquí. Llenar avance, estado, siguiente y bloqueo a mano. Estados válidos: idea | diseno | desarrollo | vobo | produccion | pausado.",
+  "proyectos": [
+    { "id": "hbtrade360",  "nombre": "HBTrade360",              "sub": "Comercio exterior",        "modulo": "naranja",  "estado": "desarrollo", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "costeo",      "nombre": "Costeo360",               "sub": "Costos y precios",         "modulo": "amarillo", "estado": "produccion", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "cliente360",  "nombre": "Cliente360",              "sub": "Directorio de clientes",   "modulo": "flow",     "estado": "produccion", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "crm2",        "nombre": "CRM Hidrobart",           "sub": "Pipeline de ventas · v2",  "modulo": "verde",    "estado": "desarrollo", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "docprocesos", "nombre": "SCOR",                    "sub": "Cadena de Suministro",     "modulo": "gris",     "estado": "desarrollo", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "cortex",      "nombre": "Cortex",                  "sub": "Cerebro de IA",            "modulo": "lila",     "estado": "desarrollo", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "superset",    "nombre": "Dashboard Institucional", "sub": "Business Intelligence",    "modulo": "celeste",  "estado": "produccion", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null },
+    { "id": "unidum",      "nombre": "Planificador",            "sub": "UNIDUM",                   "modulo": "vino",     "estado": "desarrollo", "avance": 0, "resumen": "", "siguiente": "", "bloqueo": null }
+  ]
+}

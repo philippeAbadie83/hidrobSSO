@@ -222,11 +222,11 @@ function Background() {
       >
         <path
           d="M0 100 C360 0 720 200 1080 100 C1260 50 1380 120 1440 100 L1440 200 L0 200 Z"
-          fill="#00A3C4"
+          fill="#6CACE4"
         />
         <path
           d="M0 140 C300 80 600 180 900 130 C1100 95 1300 155 1440 140 L1440 200 L0 200 Z"
-          fill="#1E5FA8"
+          fill="#3A5DAE"
           opacity="0.6"
         />
       </svg>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-density="comfortable">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hidroBIntel · Design System v2.0</title>
+<style>
+/* ═══ TOKENS v2 (ver hidrobintel-tokens.css) ═══ */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+:root{
+--hbp-carbon:#13294B;--hbp-blue:#3A5DAE;--hbp-celeste:#6CACE4;--hbp-gray:#3F4444;
+--hbp-resin:#2C5697;--hbp-flow:#0072CE;--hbp-calypso:#DDE5ED;
+--hbp-flow-900:#003F72;--hbp-flow-800:#004E8A;--hbp-flow-700:#005FA8;--hbp-flow-600:#0072CE;
+--hbp-flow-400:#3D95E0;--hbp-flow-300:#5AA9E8;--hbp-celeste-300:#8FC4EE;--hbp-celeste-100:#C8E1F6;
+--hbp-n-00:#FFFFFF;--hbp-n-05:#F5F8FB;--hbp-n-10:#EDF2F8;--hbp-n-20:#D8E2EC;--hbp-n-30:#B9C9DA;
+--hbp-n-50:#5B6B7C;--hbp-n-60:#41556B;--hbp-n-80:#1B3557;--hbp-n-90:#122641;--hbp-n-95:#0A1729;
+--hbp-n-on-dark-1:#E8EFF7;--hbp-n-on-dark-2:#A9BDD4;--hbp-n-on-dark-3:#7E93AC;
+--hbp-border-dark:#24406B;--hbp-border-dark-2:#2E4E7D;
+--hbp-cat-gray:#566361;--hbp-cat-metal:#7A99AC;--hbp-cat-yellow:#DECD63;--hbp-cat-green:#A9C47F;
+--hbp-cat-wine:#672E45;--hbp-cat-lila:#BA9CC5;--hbp-cat-orange:#ECA154;
+--hbp-ok-600:#15803D;--hbp-ok-400:#4ADE80;--hbp-ok-050:#DCFCE7;
+--hbp-warn-600:#A16207;--hbp-warn-400:#FACC15;--hbp-warn-050:#FEF9C3;
+--hbp-err-600:#B91C1C;--hbp-err-400:#F87171;--hbp-err-050:#FEE2E2;
+--hbp-info-600:#005FA8;--hbp-info-400:#5AA9E8;--hbp-info-050:#E0EEFA;
+--hb-font:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+--hb-font-mono:'Cascadia Code','Fira Code',ui-monospace,Consolas,monospace;
+--hb-fw-regular:400;--hb-fw-medium:500;--hb-fw-semibold:600;--hb-fw-bold:700;--hb-fw-black:800;
+--hb-fs-2xs:.6875rem;--hb-fs-xs:.75rem;--hb-fs-sm:.8125rem;--hb-fs-base:.875rem;--hb-fs-md:1rem;
+--hb-fs-lg:1.25rem;--hb-fs-xl:1.5rem;--hb-fs-2xl:1.75rem;--hb-fs-3xl:2.25rem;
+--hb-fs-kpi:clamp(1.75rem,1.2rem + 2vw,2.75rem);
+--hb-lh-tight:1.2;--hb-lh-normal:1.5;--hb-lh-relaxed:1.7;--hb-tracking-label:.08em;
+--hb-radius-xs:4px;--hb-radius-sm:6px;--hb-radius:8px;--hb-radius-md:10px;--hb-radius-lg:14px;--hb-radius-pill:9999px;
+--hb-ease:cubic-bezier(.2,0,0,1);--hb-ease-out:cubic-bezier(0,0,.2,1);
+--hb-dur-fast:120ms;--hb-dur:180ms;--hb-dur-slow:240ms;
+--hbc-rail-w:56px;--hbc-sidebar-w:248px;--hbc-topbar-h:56px;
+}
+:root,[data-theme="light"]{color-scheme:light;
+--hb-canvas:var(--hbp-n-05);--hb-surface:var(--hbp-n-00);--hb-surface-sunken:var(--hbp-n-10);
+--hb-surface-raised:var(--hbp-n-00);--hb-overlay:rgba(10,23,41,.55);
+--hb-border:var(--hbp-n-20);--hb-border-strong:var(--hbp-n-30);
+--hb-text:var(--hbp-carbon);--hb-text-secondary:var(--hbp-n-60);--hb-text-muted:var(--hbp-n-50);
+--hb-text-on-accent:var(--hbp-n-00);--hb-text-on-inverse:var(--hbp-n-00);
+--hb-accent:var(--hbp-flow-700);--hb-accent-solid:var(--hbp-flow-600);
+--hb-accent-solid-hover:var(--hbp-flow-700);--hb-accent-subtle:var(--hbp-info-050);
+--hb-accent-border:var(--hbp-flow-400);--hb-focus-ring:var(--hbp-flow-600);
+--hb-rail-bg:var(--hbp-carbon);--hb-rail-fg:var(--hbp-n-on-dark-2);--hb-rail-fg-active:var(--hbp-n-00);
+--hb-rail-active-bg:var(--hbp-blue);
+--hb-sidebar-bg:var(--hbp-n-00);--hb-sidebar-fg:var(--hbp-n-60);--hb-sidebar-fg-active:var(--hbp-flow-800);
+--hb-sidebar-active-bg:var(--hbp-info-050);--hb-sidebar-hover-bg:var(--hbp-n-10);--hb-topbar-bg:var(--hbp-n-00);
+--hb-table-header-bg:var(--hbp-blue);--hb-table-header-fg:var(--hbp-n-00);
+--hb-table-row-alt:var(--hbp-n-05);--hb-table-row-hover:var(--hbp-info-050);
+--hb-ok:var(--hbp-ok-600);--hb-ok-bg:var(--hbp-ok-050);--hb-warn:var(--hbp-warn-600);--hb-warn-bg:var(--hbp-warn-050);
+--hb-error:var(--hbp-err-600);--hb-error-bg:var(--hbp-err-050);--hb-info:var(--hbp-info-600);--hb-info-bg:var(--hbp-info-050);
+--hb-shadow-sm:0 1px 2px rgba(19,41,75,.06),0 1px 3px rgba(19,41,75,.08);
+--hb-shadow:0 2px 4px rgba(19,41,75,.06),0 8px 20px rgba(19,41,75,.10);
+--hb-shadow-lg:0 4px 8px rgba(19,41,75,.08),0 16px 40px rgba(19,41,75,.14);
+--hb-hex-stroke:rgba(19,41,75,.07);
+}
+[data-theme="dark"]{color-scheme:dark;
+--hb-canvas:var(--hbp-n-95);--hb-surface:var(--hbp-n-90);--hb-surface-sunken:var(--hbp-n-95);
+--hb-surface-raised:var(--hbp-n-80);--hb-overlay:rgba(3,9,18,.70);
+--hb-border:var(--hbp-border-dark);--hb-border-strong:var(--hbp-border-dark-2);
+--hb-text:var(--hbp-n-on-dark-1);--hb-text-secondary:var(--hbp-n-on-dark-2);--hb-text-muted:var(--hbp-n-on-dark-3);
+--hb-text-on-accent:var(--hbp-n-00);--hb-text-on-inverse:var(--hbp-carbon);
+--hb-accent:var(--hbp-celeste-300);--hb-accent-solid:var(--hbp-flow-600);
+--hb-accent-solid-hover:var(--hbp-flow-400);--hb-accent-subtle:rgba(108,172,228,.14);
+--hb-accent-border:var(--hbp-flow-400);--hb-focus-ring:var(--hbp-celeste);
+--hb-rail-bg:#071223;--hb-rail-fg:var(--hbp-n-on-dark-3);--hb-rail-fg-active:var(--hbp-n-00);
+--hb-rail-active-bg:var(--hbp-resin);
+--hb-sidebar-bg:var(--hbp-n-90);--hb-sidebar-fg:var(--hbp-n-on-dark-2);--hb-sidebar-fg-active:var(--hbp-celeste-300);
+--hb-sidebar-active-bg:rgba(108,172,228,.14);--hb-sidebar-hover-bg:rgba(255,255,255,.05);--hb-topbar-bg:var(--hbp-n-90);
+--hb-table-header-bg:var(--hbp-n-80);--hb-table-header-fg:var(--hbp-celeste-300);
+--hb-table-row-alt:rgba(255,255,255,.025);--hb-table-row-hover:rgba(108,172,228,.10);
+--hb-ok:var(--hbp-ok-400);--hb-ok-bg:rgba(74,222,128,.14);--hb-warn:var(--hbp-warn-400);--hb-warn-bg:rgba(250,204,21,.14);
+--hb-error:var(--hbp-err-400);--hb-error-bg:rgba(248,113,113,.14);--hb-info:var(--hbp-info-400);--hb-info-bg:rgba(90,169,232,.14);
+--hb-shadow-sm:0 1px 2px rgba(0,0,0,.40);--hb-shadow:0 4px 16px rgba(0,0,0,.45);--hb-shadow-lg:0 12px 36px rgba(0,0,0,.55);
+--hb-hex-stroke:rgba(255,255,255,.06);
+}
+:root,[data-density="comfortable"]{--hb-density:1;--hb-fs-body:var(--hb-fs-base);
+--hb-control-h:40px;--hb-row-h:48px;--hb-card-pad:20px;--hb-page-pad:32px;}
+[data-density="compact"]{--hb-density:.75;--hb-fs-body:var(--hb-fs-sm);
+--hb-control-h:32px;--hb-row-h:34px;--hb-card-pad:14px;--hb-page-pad:20px;}
+:root{--hb-s1:calc(4px*var(--hb-density));--hb-s2:calc(8px*var(--hb-density));--hb-s3:calc(12px*var(--hb-density));
+--hb-s4:calc(16px*var(--hb-density));--hb-s5:calc(20px*var(--hb-density));--hb-s6:calc(24px*var(--hb-density));
+--hb-s8:calc(32px*var(--hb-density));--hb-s10:calc(40px*var(--hb-density));--hb-s12:calc(48px*var(--hb-density));}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--hb-font);font-size:var(--hb-fs-body);line-height:var(--hb-lh-normal);
+color:var(--hb-text);background:var(--hb-canvas);-webkit-font-smoothing:antialiased;
+transition:background var(--hb-dur) var(--hb-ease),color var(--hb-dur) var(--hb-ease)}
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:2px solid var(--hb-focus-ring);outline-offset:2px;border-radius:var(--hb-radius-xs)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.hb-display{font-size:var(--hb-fs-2xl);font-weight:700;line-height:1.2;letter-spacing:-.015em;color:var(--hb-text);margin:0}
+.hb-title{font-size:var(--hb-fs-xl);font-weight:700;line-height:1.2;color:var(--hb-text);margin:0}
+.hb-heading{font-size:var(--hb-fs-lg);font-weight:600;line-height:1.2;color:var(--hb-text);margin:0}
+.hb-body{font-size:var(--hb-fs-body);color:var(--hb-text-secondary);line-height:1.7;margin:0}
+.hb-caption{font-size:var(--hb-fs-xs);color:var(--hb-text-muted);margin:0}
+.hb-label{font-size:var(--hb-fs-2xs);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--hb-text-muted)}
+.hb-kpi{font-size:var(--hb-fs-kpi);font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--hb-text)}
+
+.hb-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--hb-s2);height:var(--hb-control-h);
+padding:0 var(--hb-s4);font:inherit;font-size:var(--hb-fs-body);font-weight:600;border-radius:var(--hb-radius);
+border:1px solid transparent;cursor:pointer;white-space:nowrap;
+transition:background var(--hb-dur-fast) var(--hb-ease),border-color var(--hb-dur-fast) var(--hb-ease),transform var(--hb-dur-fast) var(--hb-ease)}
+.hb-btn:active:not(:disabled){transform:translateY(1px)}
+.hb-btn:disabled{opacity:.45;cursor:not-allowed}
+.hb-btn--primary{background:var(--hb-accent-solid);color:var(--hb-text-on-accent)}
+.hb-btn--primary:hover:not(:disabled){background:var(--hb-accent-solid-hover)}
+.hb-btn--secondary{background:var(--hb-surface);color:var(--hb-text);border-color:var(--hb-border-strong)}
+.hb-btn--secondary:hover:not(:disabled){background:var(--hb-surface-sunken)}
+.hb-btn--ghost{background:transparent;color:var(--hb-accent)}
+.hb-btn--ghost:hover:not(:disabled){background:var(--hb-accent-subtle)}
+.hb-btn--danger{background:var(--hb-error);color:#fff}
+[data-theme="dark"] .hb-btn--danger{color:#2A0A0A}
+.hb-input,.hb-select{height:var(--hb-control-h);padding:0 var(--hb-s3);font:inherit;font-size:var(--hb-fs-body);
+color:var(--hb-text);background:var(--hb-surface);border:1px solid var(--hb-border-strong);border-radius:var(--hb-radius);width:100%}
+.hb-input::placeholder{color:var(--hb-text-muted)}
+.hb-input:hover,.hb-select:hover{border-color:var(--hb-accent-border)}
+.hb-card{background:var(--hb-surface);border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg);
+padding:var(--hb-card-pad);box-shadow:var(--hb-shadow-sm)}
+.hb-card--accent{border-top:3px solid var(--hb-module,var(--hbp-flow))}
+.hb-badge{display:inline-flex;align-items:center;gap:var(--hb-s1);padding:2px var(--hb-s2);border-radius:var(--hb-radius-pill);
+font-size:var(--hb-fs-2xs);font-weight:600;line-height:1.6;white-space:nowrap}
+.hb-badge--ok{background:var(--hb-ok-bg);color:var(--hb-ok)}
+.hb-badge--warn{background:var(--hb-warn-bg);color:var(--hb-warn)}
+.hb-badge--error{background:var(--hb-error-bg);color:var(--hb-error)}
+.hb-badge--info{background:var(--hb-info-bg);color:var(--hb-info)}
+.hb-badge--neutral{background:var(--hb-surface-sunken);color:var(--hb-text-secondary)}
+.hb-table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--hb-fs-body)}
+.hb-table thead th{background:var(--hb-table-header-bg);color:var(--hb-table-header-fg);font-size:var(--hb-fs-2xs);
+font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:left;padding:var(--hb-s3) var(--hb-s4);white-space:nowrap}
+.hb-table thead th:first-child{border-radius:var(--hb-radius) 0 0 0}
+.hb-table thead th:last-child{border-radius:0 var(--hb-radius) 0 0}
+.hb-table tbody td{height:var(--hb-row-h);padding:var(--hb-s2) var(--hb-s4);border-bottom:1px solid var(--hb-border);color:var(--hb-text-secondary)}
+.hb-table tbody tr:nth-child(even){background:var(--hb-table-row-alt)}
+.hb-table tbody tr:hover{background:var(--hb-table-row-hover)}
+.hb-table .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--hb-text);font-weight:500}
+.hb-hex-pattern{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpolygon points='20,2 38,12 38,34 20,44 2,34 2,12' fill='none' stroke='%23808080' stroke-opacity='.45' stroke-width='1'/%3E%3C/svg%3E");background-size:40px 46px}
+
+/* ═══ CHROME DEL DOCUMENTO ═══ */
+.doc-top{position:sticky;top:0;z-index:50;background:var(--hb-surface);border-bottom:1px solid var(--hb-border);
+padding:14px clamp(16px,4vw,40px);display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--hb-shadow-sm)}
+.doc-brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.doc-brand .hexmark{width:34px;height:38px;flex:none}
+.doc-brand b{font-size:15px;font-weight:800;letter-spacing:-.01em;display:block;line-height:1.1}
+.doc-brand span{font-size:11px;color:var(--hb-text-muted);letter-spacing:.06em;text-transform:uppercase}
+.seg{display:inline-flex;background:var(--hb-surface-sunken);border:1px solid var(--hb-border);border-radius:var(--hb-radius-pill);padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--hb-text-secondary);font:inherit;font-size:12px;font-weight:600;
+padding:6px 14px;border-radius:var(--hb-radius-pill);cursor:pointer;transition:all var(--hb-dur-fast) var(--hb-ease)}
+.seg button[aria-pressed="true"]{background:var(--hb-accent-solid);color:#fff}
+.seg-wrap{display:flex;flex-direction:column;gap:4px}
+.seg-wrap>.hb-label{padding-left:4px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 96px}
+section{padding-top:56px;scroll-margin-top:90px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.sec-n{font-size:11px;font-weight:800;color:var(--hb-accent);letter-spacing:.14em;font-family:var(--hb-font-mono)}
+.sec-sub{color:var(--hb-text-secondary);font-size:14px;line-height:1.7;max-width:70ch;margin:0 0 24px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+.swatch{border:1px solid var(--hb-border);border-radius:var(--hb-radius-md);overflow:hidden;background:var(--hb-surface)}
+.swatch .chip{height:74px;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px}
+.swatch .meta{padding:10px 12px}
+.swatch .meta b{display:block;font-size:12.5px;font-weight:700}
+.swatch .meta code{font-family:var(--hb-font-mono);font-size:11px;color:var(--hb-text-muted)}
+.ratio{font-family:var(--hb-font-mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.92);color:#13294B}
+.pill-pass{background:var(--hb-ok-bg);color:var(--hb-ok);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px}
+.pill-fail{background:var(--hb-error-bg);color:var(--hb-error);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px}
+.note{border-left:3px solid var(--hb-accent-border);background:var(--hb-accent-subtle);padding:12px 16px;
+border-radius:0 var(--hb-radius) var(--hb-radius) 0;font-size:13.5px;color:var(--hb-text-secondary);line-height:1.65}
+.note.warn{border-left-color:var(--hb-warn);background:var(--hb-warn-bg)}
+.note.bad{border-left-color:var(--hb-error);background:var(--hb-error-bg)}
+.note b{color:var(--hb-text)}
+pre{background:var(--hb-surface-raised);color:var(--hb-text);border:1px solid var(--hb-border);border-radius:var(--hb-radius);
+padding:16px;font-family:var(--hb-font-mono);font-size:12px;line-height:1.65;overflow-x:auto;margin:12px 0}
+[data-theme="light"] pre{background:#0F2136;color:#C8DCF0;border-color:#0F2136}
+code.inl{font-family:var(--hb-font-mono);font-size:12px;background:var(--hb-surface-sunken);
+padding:1px 5px;border-radius:4px;color:var(--hb-accent)}
+.spec{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.spec th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--hb-text-muted);
+padding:8px 12px;border-bottom:1px solid var(--hb-border-strong)}
+.spec td{padding:9px 12px;border-bottom:1px solid var(--hb-border);color:var(--hb-text-secondary);vertical-align:top}
+.spec td:first-child{color:var(--hb-text);font-weight:600;white-space:nowrap}
+
+/* ═══ MAQUETA APPSHELL ═══ */
+.shell{border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg);overflow:hidden;background:var(--hb-canvas);
+box-shadow:var(--hb-shadow);display:grid;grid-template-columns:var(--hbc-rail-w) var(--hbc-sidebar-w) 1fr;min-height:520px;
+transition:grid-template-columns var(--hb-dur-slow) var(--hb-ease)}
+.shell[data-vp="tablet"]{grid-template-columns:var(--hbc-rail-w) 64px 1fr}
+.shell[data-vp="mobile"]{grid-template-columns:1fr}
+.shell[data-vp="mobile"] .rail,.shell[data-vp="mobile"] .side{display:none}
+.rail{background:var(--hb-rail-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0}
+.rail .lg{width:34px;height:38px;margin-bottom:10px}
+.rail button{width:38px;height:38px;border-radius:11px;border:0;background:transparent;cursor:pointer;
+display:grid;place-items:center;font-size:15px;color:var(--hb-rail-fg);position:relative;
+transition:background var(--hb-dur-fast) var(--hb-ease)}
+.rail button:hover{background:rgba(255,255,255,.09)}
+.rail button[aria-current="true"]{background:var(--hb-rail-active-bg);color:var(--hb-rail-fg-active)}
+.rail button[aria-current="true"]::before{content:"";position:absolute;left:-12px;top:9px;bottom:9px;width:3px;
+background:var(--hbp-celeste);border-radius:0 3px 3px 0}
+.side{background:var(--hb-sidebar-bg);border-right:1px solid var(--hb-border);padding:14px 10px;overflow:hidden}
+.side-app{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--hb-border);margin-bottom:12px}
+.side-app .dot{width:30px;height:34px;flex:none}
+.side-app b{font-size:13.5px;font-weight:700;display:block;line-height:1.15;color:var(--hb-text)}
+.side-app span{font-size:10.5px;color:var(--hb-text-muted)}
+.shell[data-vp="tablet"] .side-app b,.shell[data-vp="tablet"] .side-app span,
+.shell[data-vp="tablet"] .side .lbl,.shell[data-vp="tablet"] .side .grp{display:none}
+.grp{font-size:9.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--hb-text-muted);padding:14px 8px 6px}
+.nav-i{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--hb-radius);color:var(--hb-sidebar-fg);
+font-size:13px;font-weight:500;cursor:pointer;transition:background var(--hb-dur-fast) var(--hb-ease)}
+.nav-i:hover{background:var(--hb-sidebar-hover-bg)}
+.nav-i[aria-current="true"]{background:var(--hb-sidebar-active-bg);color:var(--hb-sidebar-fg-active);font-weight:600}
+.nav-i .ic{width:18px;text-align:center;flex:none;opacity:.85}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--hbc-topbar-h);background:var(--hb-topbar-bg);border-bottom:1px solid var(--hb-border);
+display:flex;align-items:center;gap:12px;padding:0 var(--hb-s5);flex:none}
+.crumb{font-size:12.5px;color:var(--hb-text-muted)}
+.crumb b{color:var(--hb-text);font-weight:600}
+.topbar .sp{margin-left:auto;display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--hbp-blue);color:#fff;display:grid;place-items:center;
+font-size:11px;font-weight:700;flex:none}
+.page{padding:var(--hb-page-pad);overflow:auto;flex:1}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:var(--hb-s6);flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--hb-s3);margin-bottom:var(--hb-s5)}
+.kpi-c{background:var(--hb-surface);border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg);
+padding:var(--hb-card-pad);position:relative;overflow:hidden}
+.kpi-c::after{content:"";position:absolute;inset:12px 12px auto auto;width:22px;height:25px;
+background:var(--m,var(--hbp-flow));opacity:.85;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.kpi-c .d{font-size:11px;font-weight:600;color:var(--hb-text-muted);text-transform:uppercase;letter-spacing:.07em;padding-right:30px}
+.kpi-c .v{font-size:clamp(1.35rem,1rem + 1.4vw,1.9rem);font-weight:700;letter-spacing:-.02em;
+font-variant-numeric:tabular-nums;margin-top:6px;color:var(--hb-text)}
+.mob-card{background:var(--hb-surface);border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg);padding:14px;margin-bottom:10px}
+.mob-row{display:flex;justify-content:space-between;gap:14px;padding:3px 0;font-size:13px}
+.mob-row span:first-child{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--hb-text-muted)}
+.mob-row span:last-child{color:var(--hb-text);font-variant-numeric:tabular-nums}
+.appgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.app-t{background:var(--hb-surface);border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg);padding:16px;
+cursor:pointer;transition:transform var(--hb-dur) var(--hb-ease),box-shadow var(--hb-dur) var(--hb-ease),border-color var(--hb-dur) var(--hb-ease);
+position:relative;overflow:hidden}
+.app-t:hover{transform:translateY(-3px);box-shadow:var(--hb-shadow);border-color:var(--m)}
+.app-t .hexi{width:40px;height:45px;margin-bottom:12px}
+.app-t b{display:block;font-size:14px;font-weight:700;color:var(--hb-text)}
+.app-t small{display:block;font-size:11.5px;color:var(--hb-text-muted);margin-top:3px;line-height:1.45}
+.app-t .tg{position:absolute;top:12px;right:12px}
+.empty{text-align:center;padding:48px 20px;border:1px dashed var(--hb-border-strong);border-radius:var(--hb-radius-lg);background:var(--hb-surface)}
+.empty .hexi{width:56px;height:63px;opacity:.5;margin-bottom:14px}
+.do-dont{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.dd{border-radius:var(--hb-radius-md);padding:14px 16px;font-size:13px;line-height:1.65;border:1px solid}
+.dd.do{border-color:color-mix(in srgb,var(--hb-ok) 40%,transparent);background:var(--hb-ok-bg)}
+.dd.dont{border-color:color-mix(in srgb,var(--hb-error) 40%,transparent);background:var(--hb-error-bg)}
+.dd h5{margin:0 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+.dd.do h5{color:var(--hb-ok)}.dd.dont h5{color:var(--hb-error)}
+.dd ul{margin:0;padding-left:18px;color:var(--hb-text-secondary)}
+.dd li{margin-bottom:5px}
+.toc{position:sticky;top:78px;z-index:40;display:flex;gap:6px;overflow-x:auto;padding:10px 0;
+background:var(--hb-canvas);border-bottom:1px solid var(--hb-border);scrollbar-width:thin}
+.toc a{flex:none;font-size:12px;font-weight:600;color:var(--hb-text-secondary);text-decoration:none;
+padding:6px 12px;border-radius:var(--hb-radius-pill);border:1px solid var(--hb-border);background:var(--hb-surface)}
+.toc a:hover{color:var(--hb-accent);border-color:var(--hb-accent-border)}
+footer{border-top:1px solid var(--hb-border);padding:28px clamp(16px,4vw,40px);color:var(--hb-text-muted);font-size:12px;text-align:center}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:640px){.doc-top{gap:12px}.doc-brand{width:100%}}
+@media(max-width:767px){
+  .spec{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .spec th,.spec td{min-width:120px}
+  .spec td:first-child{min-width:100px}
+  section{overflow-x:hidden}
+  .shell .page{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SVG SPRITE: hexágonos de marca ═══ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="hex" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75"/></symbol>
+  <symbol id="hexline" viewBox="0 0 100 115"><polygon points="50,2 98,29.8 98,85.2 50,113 2,85.2 2,29.8" fill="none" stroke-width="4"/></symbol>
+</svg>
+
+<header class="doc-top">
+  <div class="doc-brand">
+    <svg class="hexmark" viewBox="0 0 100 115" aria-hidden="true">
+      <polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#3A5DAE"/>
+      <polygon points="18,20 18,95 0,86.25 0,28.75" fill="#6CACE4"/>
+      <path d="M32 88 V44 h13 v10 a17 17 0 0 1 30 11 v23 h-13 V66 a5 5 0 0 0-10 0 v22 z" fill="#fff"/>
+    </svg>
+    <div>
+      <b>hidroBIntel · Design System</b>
+      <span>v2.0 · borrador de trabajo</span>
+    </div>
+  </div>
+  <div class="seg-wrap">
+    <div class="hb-label">Tema</div>
+    <div class="seg" role="group" aria-label="Tema">
+      <button data-theme-btn="light" aria-pressed="true">Claro</button>
+      <button data-theme-btn="dark" aria-pressed="false">Oscuro</button>
+    </div>
+  </div>
+  <div class="seg-wrap">
+    <div class="hb-label">Densidad</div>
+    <div class="seg" role="group" aria-label="Densidad">
+      <button data-den-btn="comfortable" aria-pressed="true">Cómoda</button>
+      <button data-den-btn="compact" aria-pressed="false">Compacta</button>
+    </div>
+  </div>
+  <div class="seg-wrap">
+    <div class="hb-label">Viewport de la maqueta</div>
+    <div class="seg" role="group" aria-label="Viewport">
+      <button data-vp-btn="desktop" aria-pressed="true">Desktop</button>
+      <button data-vp-btn="tablet" aria-pressed="false">Tablet</button>
+      <button data-vp-btn="mobile" aria-pressed="false">Móvil</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc" aria-label="Índice">
+  <a href="#dx">Diagnóstico</a>
+  <a href="#pr">Principios</a>
+  <a href="#col">Color</a>
+  <a href="#tip">Tipografía</a>
+  <a href="#den">Densidad</a>
+  <a href="#shell">AppShell</a>
+  <a href="#comp">Componentes</a>
+  <a href="#datos">Datos</a>
+  <a href="#portal">Portal</a>
+  <a href="#mod">Módulos</a>
+  <a href="#mig">Migración</a>
+</nav>
+
+<!-- ═══ 00 INTRO ═══ -->
+<section id="intro" style="padding-top:40px">
+  <h1 class="hb-display" style="font-size:clamp(1.8rem,1.2rem+2.4vw,2.6rem)">
+    El sistema visual de la plataforma, no de cada app
+  </h1>
+  <p class="sec-sub" style="font-size:15px;max-width:74ch;margin-top:12px">
+    Hasta hoy cada app de Hidrobart copia <code class="inl">AppLayout.jsx</code> y
+    <code class="inl">hidrobart-tokens.css</code> y los adapta. El resultado es coherente en la
+    superficie y frágil por dentro: los valores están escritos a mano en cada componente, no hay
+    forma de cambiar de tema, la densidad es fija y varios pares de color no pasan contraste AA.
+    <br><br>
+    <b>v2 cambia el punto de apoyo:</b> de <i>«copiar un layout»</i> a <i>«consumir un sistema
+    de tokens»</i>. Con eso el modo oscuro, la densidad compacta y el responsive real dejan de ser
+    proyectos y pasan a ser un atributo en el <code class="inl">&lt;html&gt;</code>.
+    Usa los controles de arriba para verlo en vivo — todo este documento reacciona a ellos.
+  </p>
+  <div class="note" style="margin-top:20px">
+    <b>Alcance.</b> Este sistema vive dentro de <code class="inl">hidrobintel.hidrobart.com</code>
+    (hoy <code class="inl">hidrosso.hidrobart.com</code>) y se distribuye desde ahí a Costeo360,
+    CRM v2, Cliente360, HBTrade360, Planificador, Cortex y Docs.
+  </div>
+</section>
+
+<!-- ═══ 01 DIAGNÓSTICO ═══ -->
+<section id="dx">
+  <div class="sec-head"><span class="sec-n">01</span><h2 class="hb-title">Diagnóstico del estándar actual</h2></div>
+  <p class="sec-sub">Nueve hallazgos sobre <code class="inl">hidrobart-tokens.css v1</code> y el patrón de página
+  documentado en <code class="inl">CLAUDE.md</code>. Los tres primeros son defectos, no preferencias.</p>
+
+  <div class="note bad" style="margin-bottom:14px">
+    <b>D1 · Contraste insuficiente en texto secundario.</b>
+    <code class="inl">--hb-text-muted: #94a3b8</code> da <b>2.56:1</b> sobre blanco. WCAG AA pide 4.5:1.
+    Ese token gobierna <code class="inl">.hb-label</code> (las etiquetas en mayúsculas de toda la UI),
+    placeholders y metadatos. v2 lo sustituye por <code class="inl">#5B6B7C</code> (<b>5.13:1</b>).
+  </div>
+  <div class="note bad" style="margin-bottom:14px">
+    <b>D2 · El acento primario falla sobre el fondo de contenido.</b>
+    Azul Flow <code class="inl">#0072CE</code> da 4.89:1 sobre blanco pero <b>4.46:1</b> sobre
+    <code class="inl">#f1f5f9</code>, el fondo del área de contenido. Los links azules sobre fondo gris
+    quedan por debajo de AA. v2 separa <b>acento de texto</b> (<code class="inl">#005FA8</code>, 6.15:1)
+    de <b>acento de relleno</b> (Azul Flow, con texto blanco encima).
+  </div>
+  <div class="note bad" style="margin-bottom:14px">
+    <b>D3 · La paleta de catálogo se usa como si fuera de texto.</b>
+    Amarillo, Verde, Lila y Naranja dan entre 1.6:1 y 2.4:1 sobre blanco. Sirven como
+    <b>relleno con texto oscuro encima</b> (Carbón sobre Amarillo = 9.0:1), nunca como color de letra.
+  </div>
+
+  <table class="spec">
+    <thead><tr><th>#</th><th>Hallazgo</th><th>Consecuencia</th><th>Respuesta en v2</th></tr></thead>
+    <tbody>
+      <tr><td>D4</td><td>Tokens de una sola capa: <code class="inl">--hb-blue</code> nombra el color, no su uso</td>
+        <td>Imposible cambiar de tema sin reescribir cada componente</td><td>3 capas: primitivo → semántico → componente</td></tr>
+      <tr><td>D5</td><td>Estilos en línea dentro del JSX (el patrón de página está documentado con <code class="inl">style={'{{...}}'}</code>)</td>
+        <td>Los valores se congelan en el markup; nada hereda del tema</td><td>Clases <code class="inl">.hb-*</code> + variables CSS</td></tr>
+      <tr><td>D6</td><td>Regla «no dark theme en el área de contenido»</td>
+        <td>Bloquea el modo oscuro que hoy se pide</td><td>Se deroga y se sustituye: el <b>rail</b> permanece Carbón en ambos temas</td></tr>
+      <tr><td>D7</td><td>Escala tipográfica en px fijos (11 → 36)</td>
+        <td>Ignora el tamaño de fuente del sistema; no escala con densidad</td><td>rem + escala modular + KPI fluido con <code class="inl">clamp()</code></td></tr>
+      <tr><td>D8</td><td>Sin estados de foco, vacío, carga ni error definidos</td>
+        <td>Cada app los improvisa; navegación por teclado sin señal visible</td><td><code class="inl">:focus-visible</code> global + patrones de estado</td></tr>
+      <tr><td>D9</td><td>Íconos emoji en el portal (<code class="inl">apps.json</code>: 🤖 📊 💰)</td>
+        <td>Render distinto por sistema operativo; nada de marca</td><td>Hexágonos + íconos de las extensiones visuales del BrandKit</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 02 PRINCIPIOS ═══ -->
+<section id="pr">
+  <div class="sec-head"><span class="sec-n">02</span><h2 class="hb-title">Cinco principios</h2></div>
+  <p class="sec-sub">Cuando dos decisiones de diseño compiten, gana la que respete el principio de número más bajo.</p>
+  <div class="grid g2">
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">1 · El dato manda</h4>
+      <p class="hb-body" style="font-size:13px;margin-top:6px">Estas son herramientas de trabajo. La cifra, el estado y la fecha se leen antes que cualquier adorno. Cifras siempre en <code class="inl">tabular-nums</code> y alineadas a la derecha.</p></div>
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">2 · Una sola gramática</h4>
+      <p class="hb-body" style="font-size:13px;margin-top:6px">Quien aprende Costeo360 ya sabe usar CRM v2. Mismo shell, mismo lugar para el título, mismo lugar para la acción primaria, mismos badges.</p></div>
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">3 · La marca ordena, no decora</h4>
+      <p class="hb-body" style="font-size:13px;margin-top:6px">El hexágono identifica módulos. El azul jerarquiza. El color de catálogo segmenta. Nada de color puesto «porque se ve bien».</p></div>
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">4 · Accesible por defecto</h4>
+      <p class="hb-body" style="font-size:13px;margin-top:6px">Ningún par texto/fondo del sistema baja de 4.5:1. Foco siempre visible. Objetivos táctiles de 44px como mínimo en móvil.</p></div>
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">5 · Un token, un lugar</h4>
+      <p class="hb-body" style="font-size:13px;margin-top:6px">Un HEX literal dentro de un componente es un bug. Si falta un token, se agrega al sistema — no se improvisa en la app.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 03 COLOR ═══ -->
+<section id="col">
+  <div class="sec-head"><span class="sec-n">03</span><h2 class="hb-title">Color</h2></div>
+  <p class="sec-sub">La paleta es la oficial del Brand Guideline (La Trividad, 2025), sin colores nuevos.
+  Lo que v2 agrega son <b>tintes derivados</b> para poder cumplir contraste, y una capa semántica que
+  reasigna esos mismos colores según el tema.</p>
+
+  <h4 class="hb-label" style="margin:24px 0 10px">Paleta principal · presente en el logo</h4>
+  <div class="grid g4">
+    <div class="swatch"><div class="chip" style="background:#13294B"><span class="ratio">14.5:1</span></div>
+      <div class="meta"><b>Carbón Activado</b><code>#13294B · PANTONE 2767 C</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#3A5DAE"><span class="ratio">6.3:1</span></div>
+      <div class="meta"><b>Azul Hidrobart</b><code>#3A5DAE · PANTONE 7455 C</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#6CACE4"><span class="ratio" style="background:#13294B;color:#fff">2.4:1</span></div>
+      <div class="meta"><b>Celeste Hidrobart</b><code>#6CACE4 · PANTONE 284 C</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#3F4444"><span class="ratio">9.9:1</span></div>
+      <div class="meta"><b>Gris Hidrobart</b><code>#3F4444 · PANTONE 446 C</code></div></div>
+  </div>
+  <p class="hb-caption" style="margin-top:8px">Ratio indicado = contra blanco. Celeste no alcanza AA sobre blanco:
+  en tema claro es <b>decoración y relleno</b>; en tema oscuro se convierte en el acento legible (8.2:1).</p>
+
+  <h4 class="hb-label" style="margin:28px 0 10px">Complementarios</h4>
+  <div class="grid g4">
+    <div class="swatch"><div class="chip" style="background:#2C5697"><span class="ratio">7.3:1</span></div>
+      <div class="meta"><b>Azul Resina</b><code>#2C5697</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#0072CE"><span class="ratio">4.9:1</span></div>
+      <div class="meta"><b>Azul Flow</b><code>#0072CE</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#DDE5ED"><span class="ratio" style="background:#13294B;color:#fff">1.3:1</span></div>
+      <div class="meta"><b>Celeste Calypso</b><code>#DDE5ED</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#005FA8"><span class="ratio">6.2:1</span></div>
+      <div class="meta"><b>Flow-700 <span class="hb-badge hb-badge--info" style="font-size:9px">derivado</span></b><code>#005FA8 · acento de texto</code></div></div>
+  </div>
+
+  <h4 class="hb-label" style="margin:28px 0 10px">Catálogo · identidad por módulo y segmentación</h4>
+  <div class="grid g4">
+    <div class="swatch"><div class="chip" style="background:#566361"><span class="ratio">6.3:1</span></div><div class="meta"><b>Gris</b><code>#566361</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#7A99AC"><span class="ratio">3.0:1</span></div><div class="meta"><b>Metal</b><code>#7A99AC</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#DECD63"><span class="ratio" style="background:#13294B;color:#fff">9.0:1 c/Carbón</span></div><div class="meta"><b>Amarillo</b><code>#DECD63</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#A9C47F"><span class="ratio" style="background:#13294B;color:#fff">7.5:1 c/Carbón</span></div><div class="meta"><b>Verde</b><code>#A9C47F</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#672E45"><span class="ratio">10.2:1</span></div><div class="meta"><b>Vino</b><code>#672E45</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#BA9CC5"><span class="ratio" style="background:#13294B;color:#fff">6.0:1 c/Carbón</span></div><div class="meta"><b>Lila</b><code>#BA9CC5</code></div></div>
+    <div class="swatch"><div class="chip" style="background:#ECA154"><span class="ratio" style="background:#13294B;color:#fff">6.8:1 c/Carbón</span></div><div class="meta"><b>Naranja</b><code>#ECA154</code></div></div>
+  </div>
+
+  <h4 class="hb-label" style="margin:28px 0 10px">Semánticos vivos · cambian con el tema activo</h4>
+  <div class="grid g3">
+    <div class="hb-card" style="padding:14px"><div class="hb-label">Superficie / texto</div>
+      <div style="margin-top:8px;font-size:13px;color:var(--hb-text)">Texto primario — 13:1</div>
+      <div style="font-size:13px;color:var(--hb-text-secondary)">Texto secundario — 7.2:1</div>
+      <div style="font-size:13px;color:var(--hb-text-muted)">Texto atenuado — 5.1:1</div>
+      <div style="font-size:13px;color:var(--hb-accent);font-weight:600">Enlace / acento — 6.2:1</div></div>
+    <div class="hb-card" style="padding:14px"><div class="hb-label">Estados</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+        <span class="hb-badge hb-badge--ok">✓ Aprobado</span>
+        <span class="hb-badge hb-badge--warn">⚠ Pendiente</span>
+        <span class="hb-badge hb-badge--error">✕ Vencido</span>
+        <span class="hb-badge hb-badge--info">ℹ Nuevo</span>
+        <span class="hb-badge hb-badge--neutral">Borrador</span>
+      </div></div>
+    <div class="hb-card" style="padding:14px"><div class="hb-label">Acciones</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+        <button class="hb-btn hb-btn--primary">Guardar</button>
+        <button class="hb-btn hb-btn--secondary">Exportar</button>
+        <button class="hb-btn hb-btn--ghost">Cancelar</button>
+      </div></div>
+  </div>
+
+  <div class="note warn" style="margin-top:20px">
+    <b>Regla que cambia en tema oscuro.</b> Azul Hidrobart <code class="inl">#3A5DAE</code> da 2.5:1 sobre
+    superficie oscura: no puede ser texto ni cabecera de tabla en dark. La cabecera de tabla pasa a
+    <code class="inl">#1B3557</code> con texto Celeste-300 — conserva la señal cognitiva («la cabecera es azul»)
+    sin deslumbrar ni fallar contraste. Cambia el tema arriba y compara la tabla de la sección 07.
+  </div>
+</section>
+
+<!-- ═══ 04 TIPOGRAFÍA ═══ -->
+<section id="tip">
+  <div class="sec-head"><span class="sec-n">04</span><h2 class="hb-title">Tipografía</h2></div>
+  <p class="sec-sub"><b>Montserrat</b> para toda la interfaz. <b>Nexa</b> es la tipografía del logo y no se
+  usa en UI (es comercial y no está en Google Fonts). Escala modular 1.200 sobre 14px, expresada en
+  <code class="inl">rem</code> para respetar el tamaño de fuente que el usuario configuró en su sistema.</p>
+  <div class="hb-card">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:6px">
+      <span class="hb-kpi">$ 1,284,900</span><span class="hb-label">KPI · fluido con clamp()</span></div>
+    <hr style="border:0;border-top:1px solid var(--hb-border);margin:14px 0">
+    <p class="hb-display" style="margin-bottom:4px">Título de página · 28px / 700</p>
+    <p class="hb-title" style="margin-bottom:4px">Título de sección · 24px / 700</p>
+    <p class="hb-heading" style="margin-bottom:10px">Título de card · 20px / 600</p>
+    <p class="hb-body" style="max-width:66ch">Cuerpo de aplicación · 14px / 400 con interlineado 1.7. Un párrafo
+    de UI no debe pasar de 66 caracteres por línea; más allá el ojo pierde el renglón al volver.</p>
+    <p class="hb-caption" style="margin-top:8px">Metadato · 12px — actualizado hace 3 min</p>
+    <p class="hb-label" style="margin-top:10px">Etiqueta de sección · 11px / 600 / +0.08em</p>
+  </div>
+  <table class="spec" style="margin-top:18px">
+    <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td>--hb-fs-2xs</td><td>0.6875rem · 11px</td><td>Etiquetas en mayúsculas, badges</td></tr>
+      <tr><td>--hb-fs-xs</td><td>0.75rem · 12px</td><td>Metadatos, captions, breadcrumb</td></tr>
+      <tr><td>--hb-fs-sm</td><td>0.8125rem · 13px</td><td>Cuerpo en densidad compacta</td></tr>
+      <tr><td>--hb-fs-base</td><td>0.875rem · 14px</td><td>Cuerpo de app (densidad cómoda)</td></tr>
+      <tr><td>--hb-fs-md</td><td>1rem · 16px</td><td>Inputs en móvil — evita el zoom automático de iOS</td></tr>
+      <tr><td>--hb-fs-kpi</td><td>clamp(1.75rem, 1.2rem+2vw, 2.75rem)</td><td>Cifras protagonistas</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 05 DENSIDAD ═══ -->
+<section id="den">
+  <div class="sec-head"><span class="sec-n">05</span><h2 class="hb-title">Densidad y responsive</h2></div>
+  <p class="sec-sub">Una variable, <code class="inl">--hb-density</code>, multiplica toda la escala de espaciado.
+  El atributo <code class="inl">data-density</code> en el <code class="inl">&lt;html&gt;</code> lo conmuta.
+  Es una preferencia del usuario, se guarda en su perfil y aplica a todas las apps.</p>
+  <div class="grid g2">
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">Cómoda</h4>
+      <p class="hb-body" style="font-size:13px">Dashboards, formularios, detalle de cliente, lectura. Fila de 48px, cuerpo 14px, padding de página 32px.</p></div>
+    <div class="hb-card"><h4 class="hb-heading" style="font-size:15px">Compacta</h4>
+      <p class="hb-body" style="font-size:13px">Costeo, pipeline, listados largos, conciliación. Fila de 34px, cuerpo 13px, padding 20px — ~40% más filas visibles.</p></div>
+  </div>
+  <div class="note warn" style="margin-top:14px">
+    <b>La densidad compacta no aplica en móvil.</b> Por debajo de 768px todos los controles vuelven a
+    44px de alto mínimo (WCAG 2.5.5). Ahorrar píxeles a costa del dedo no es una optimización.
+  </div>
+  <table class="spec" style="margin-top:18px">
+    <thead><tr><th>Breakpoint</th><th>Rail</th><th>Sidebar</th><th>Contenido</th><th>Tablas</th></tr></thead>
+    <tbody>
+      <tr><td>≥1024px · Desktop</td><td>56px fijo</td><td>248px visible</td><td>padding 32px</td><td>Grid completo, cabecera sticky</td></tr>
+      <tr><td>768–1023px · Tablet</td><td>56px fijo</td><td>64px sólo íconos</td><td>padding 24px</td><td>Columnas secundarias ocultas</td></tr>
+      <tr><td>&lt;768px · Móvil</td><td>Barra inferior</td><td>Drawer</td><td>padding 16px</td><td><b>Cards apiladas</b> — nunca scroll horizontal</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 06 APPSHELL ═══ -->
+<section id="shell">
+  <div class="sec-head"><span class="sec-n">06</span><h2 class="hb-title">AppShell · rail global + navegación de app</h2></div>
+  <p class="sec-sub">El cambio estructural de v2. Hoy cada app tiene un sidebar Carbón de 260px y el portal es
+  una pantalla aparte: al entrar a una app, el usuario «sale» de hidroBIntel. v2 divide la navegación en dos:
+  un <b>rail de plataforma</b> de 56px que nunca desaparece (siempre Carbón, en ambos temas) y un
+  <b>sidebar de app</b> que sí adopta la superficie del tema. Cambiar de app deja de ser navegar; es conmutar.</p>
+
+  <div class="shell" data-vp="desktop" id="shellDemo">
+    <div class="rail">
+      <svg class="lg" viewBox="0 0 100 115" aria-hidden="true">
+        <polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#3A5DAE"/>
+        <polygon points="18,20 18,95 0,86.25 0,28.75" fill="#6CACE4"/>
+        <path d="M32 88 V44 h13 v10 a17 17 0 0 1 30 11 v23 h-13 V66 a5 5 0 0 0-10 0 v22 z" fill="#fff"/>
+      </svg>
+      <button aria-current="true" title="Costeo360">◆</button>
+      <button title="CRM v2">◈</button>
+      <button title="Cliente360">◉</button>
+      <button title="HBTrade360">◇</button>
+      <button title="Cortex">◐</button>
+      <button title="Docs">▤</button>
+      <div style="margin-top:auto"><button title="Preferencias">⚙</button></div>
+    </div>
+    <div class="side">
+      <div class="side-app">
+        <svg class="dot" viewBox="0 0 100 115" aria-hidden="true">
+          <polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#DECD63"/>
+          <polygon points="50,18 84,37.5 84,76.5 50,96 16,76.5 16,37.5" fill="none" stroke="#13294B" stroke-width="5"/>
+        </svg>
+        <div><b>Costeo360</b><span>v3.0 · Producción</span></div>
+      </div>
+      <div class="nav-i" aria-current="true"><span class="ic">▦</span><span class="lbl">Dashboard</span></div>
+      <div class="grp">Costeo</div>
+      <div class="nav-i"><span class="ic">▣</span><span class="lbl">Productos</span></div>
+      <div class="nav-i"><span class="ic">◱</span><span class="lbl">Landed cost</span></div>
+      <div class="nav-i"><span class="ic">◰</span><span class="lbl">Listas de precio</span></div>
+      <div class="grp">Proveedores</div>
+      <div class="nav-i"><span class="ic">⬢</span><span class="lbl">Catálogo</span></div>
+      <div class="nav-i"><span class="ic">⬡</span><span class="lbl">Cotizaciones</span></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <span class="crumb">Costeo · <b>Listas de precio</b></span>
+        <div class="sp">
+          <span class="hb-badge hb-badge--ok">● En línea</span>
+          <span class="hb-caption" style="display:none" data-hide-sm>Administrador</span>
+          <div class="avatar">PA</div>
+        </div>
+      </div>
+      <div class="page">
+        <div class="page-head">
+          <div>
+            <h3 class="hb-display" style="font-size:1.5rem">Listas de precio</h3>
+            <p class="hb-caption" style="margin-top:4px">Ciclo 2026 · 412 SKU activos</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="hb-btn hb-btn--secondary">Exportar</button>
+            <button class="hb-btn hb-btn--primary">Nueva lista</button>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi-c" style="--m:#DECD63"><div class="d">Margen promedio</div><div class="v">31.4%</div></div>
+          <div class="kpi-c" style="--m:#0072CE"><div class="d">SKU actualizados</div><div class="v">386</div></div>
+          <div class="kpi-c" style="--m:#ECA154"><div class="d">Bajo umbral</div><div class="v">7</div></div>
+          <div class="kpi-c" style="--m:#A9C47F"><div class="d">Proveedores</div><div class="v">14</div></div>
+        </div>
+        <div class="tscroll" style="background:var(--hb-surface);border:1px solid var(--hb-border);border-radius:var(--hb-radius-lg)">
+          <table class="hb-table">
+            <thead><tr><th>SKU</th><th>Descripción</th><th class="num">Costo</th><th class="num">Precio</th><th class="num">Margen</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>HB-4412</td><td>Filtro sedimentos 10"</td><td class="num">$ 184.20</td><td class="num">$ 289.00</td><td class="num">36.3%</td><td><span class="hb-badge hb-badge--ok">Vigente</span></td></tr>
+              <tr><td>HB-7781</td><td>Ósmosis inversa 5 etapas</td><td class="num">$ 3,910.00</td><td class="num">$ 5,490.00</td><td class="num">28.8%</td><td><span class="hb-badge hb-badge--warn">Revisar</span></td></tr>
+              <tr><td>HB-2205</td><td>Lámpara UV 12 GPM</td><td class="num">$ 2,140.50</td><td class="num">$ 2,690.00</td><td class="num">20.4%</td><td><span class="hb-badge hb-badge--error">Bajo umbral</span></td></tr>
+              <tr><td>HB-9034</td><td>Portafiltros doble 3/4"</td><td class="num">$ 612.00</td><td class="num">$ 985.00</td><td class="num">37.9%</td><td><span class="hb-badge hb-badge--ok">Vigente</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="mobPreview" style="display:none;margin-top:14px">
+          <div class="hb-label" style="margin-bottom:8px">Misma tabla en móvil</div>
+          <div class="mob-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <b style="font-size:13.5px;color:var(--hb-text)">HB-2205</b><span class="hb-badge hb-badge--error">Bajo umbral</span></div>
+            <div class="hb-caption" style="margin-bottom:8px">Lámpara UV 12 GPM</div>
+            <div class="mob-row"><span>Costo</span><span>$ 2,140.50</span></div>
+            <div class="mob-row"><span>Precio</span><span>$ 2,690.00</span></div>
+            <div class="mob-row"><span>Margen</span><span>20.4%</span></div>
+          </div>
+          <div class="mob-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <b style="font-size:13.5px;color:var(--hb-text)">HB-7781</b><span class="hb-badge hb-badge--warn">Revisar</span></div>
+            <div class="hb-caption" style="margin-bottom:8px">Ósmosis inversa 5 etapas</div>
+            <div class="mob-row"><span>Costo</span><span>$ 3,910.00</span></div>
+            <div class="mob-row"><span>Precio</span><span>$ 5,490.00</span></div>
+            <div class="mob-row"><span>Margen</span><span>28.8%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="do-dont" style="margin-top:18px">
+    <div class="dd do"><h5>Se mantiene de v1</h5><ul>
+      <li>El rail de plataforma es siempre Carbón <code class="inl">#13294B</code></li>
+      <li>Cabecera de tabla azul como señal cognitiva</li>
+      <li>Breadcrumb «Módulo · Página» en el topbar</li>
+      <li>Máximo dos botones en el encabezado de página</li>
+      <li>Navegación declarada en código, no en JSON dinámico</li>
+    </ul></div>
+    <div class="dd dont"><h5>Se deroga de v1</h5><ul>
+      <li>«Sin dark theme en el área de contenido» — ahora es un tema completo</li>
+      <li>Sidebar Carbón de 260px en cada app — pasa a superficie de tema</li>
+      <li>Estilos en línea dentro del JSX</li>
+      <li><code class="inl">--hb-text-muted: #94a3b8</code> — falla AA</li>
+      <li>Íconos emoji en el portal</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══ 07 COMPONENTES ═══ -->
+<section id="comp">
+  <div class="sec-head"><span class="sec-n">07</span><h2 class="hb-title">Componentes base</h2></div>
+  <p class="sec-sub">Diez piezas cubren cerca del 90% de las pantallas del ecosistema. Todas reaccionan a tema y densidad.</p>
+  <div class="grid g2">
+    <div class="hb-card">
+      <div class="hb-label" style="margin-bottom:12px">Botones · 4 variantes × 3 estados</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <button class="hb-btn hb-btn--primary">Primario</button>
+        <button class="hb-btn hb-btn--secondary">Secundario</button>
+        <button class="hb-btn hb-btn--ghost">Fantasma</button>
+        <button class="hb-btn hb-btn--danger">Eliminar</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="hb-btn hb-btn--primary" disabled>Deshabilitado</button>
+        <button class="hb-btn hb-btn--secondary">＋ Con ícono</button>
+      </div>
+      <p class="hb-caption" style="margin-top:10px">Un solo botón primario por pantalla. Si hay dos acciones igual de importantes, ninguna lo es.</p>
+    </div>
+    <div class="hb-card">
+      <div class="hb-label" style="margin-bottom:12px">Campos</div>
+      <div style="display:grid;gap:10px">
+        <input class="hb-input" placeholder="Buscar SKU, cliente o folio…">
+        <select class="hb-select"><option>Todos los proveedores</option><option>VIQUA</option><option>Pentair</option></select>
+        <input class="hb-input" aria-invalid="true" value="fecha inválida">
+        <span class="hb-caption" style="color:var(--hb-error)">Usa el formato AAAA-MM-DD</span>
+      </div>
+    </div>
+    <div class="hb-card">
+      <div class="hb-label" style="margin-bottom:12px">Estado vacío</div>
+      <div class="empty">
+        <svg class="hexi" viewBox="0 0 100 115" aria-hidden="true">
+          <polygon points="50,4 96,30.5 96,84.5 50,111 4,84.5 4,30.5" fill="none" stroke="currentColor" stroke-width="4" style="color:var(--hb-text-muted)"/>
+          <path d="M34 62h32M50 46v32" stroke="currentColor" stroke-width="5" stroke-linecap="round" style="color:var(--hb-text-muted)"/>
+        </svg>
+        <p class="hb-heading" style="font-size:15px">Sin cotizaciones este mes</p>
+        <p class="hb-caption" style="margin:6px 0 14px">Cuando registres la primera, aparecerá aquí con su margen calculado.</p>
+        <button class="hb-btn hb-btn--primary">Nueva cotización</button>
+      </div>
+    </div>
+    <div class="hb-card">
+      <div class="hb-label" style="margin-bottom:12px">Carga · esqueleto</div>
+      <div style="display:grid;gap:10px">
+        <div style="height:12px;width:45%;border-radius:6px;background:var(--hb-surface-sunken);animation:sk 1.4s ease-in-out infinite"></div>
+        <div style="height:12px;width:80%;border-radius:6px;background:var(--hb-surface-sunken);animation:sk 1.4s ease-in-out .1s infinite"></div>
+        <div style="height:12px;width:65%;border-radius:6px;background:var(--hb-surface-sunken);animation:sk 1.4s ease-in-out .2s infinite"></div>
+      </div>
+      <p class="hb-caption" style="margin-top:12px">Esqueleto, no spinner: conserva la forma de la página y evita el salto de layout.</p>
+      <style>@keyframes sk{0%,100%{opacity:.55}50%{opacity:1}}</style>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 08 DATOS ═══ -->
+<section id="datos">
+  <div class="sec-head"><span class="sec-n">08</span><h2 class="hb-title">Presentación de datos</h2></div>
+  <p class="sec-sub">Reglas no negociables porque de esto vive el equipo.</p>
+  <table class="spec">
+    <thead><tr><th>Regla</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Números a la derecha, texto a la izquierda</td><td>Alinea unidades y decimales; el ojo compara magnitudes de un vistazo</td></tr>
+      <tr><td><code class="inl">font-variant-numeric: tabular-nums</code> siempre</td><td>Sin ancho fijo, las cifras «bailan» al actualizarse</td></tr>
+      <tr><td>Moneda con separador de miles y 2 decimales</td><td>$ 1,284,900.00 — nunca 1284900</td></tr>
+      <tr><td>El color no es el único portador del estado</td><td>Un badge lleva ícono + texto, no sólo fondo verde: 1 de cada 12 hombres tiene daltonismo</td></tr>
+      <tr><td>Cabecera de tabla sticky</td><td>En listas de 400 SKU el usuario pierde el contexto de columna</td></tr>
+      <tr><td>Máximo 7 columnas visibles en desktop</td><td>Más allá, la tabla se lee peor que dos vistas separadas</td></tr>
+      <tr><td>Gráficas: máximo 5 series categóricas</td><td>Con más, la leyenda deja de ser legible; agrupar el resto en «Otros»</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 09 PORTAL ═══ -->
+<section id="portal">
+  <div class="sec-head"><span class="sec-n">09</span><h2 class="hb-title">Portal hidroBIntel</h2></div>
+  <p class="sec-sub">La primera pantalla después del login. Sustituye la rejilla de emoji actual por
+  hexágonos de marca, un color de módulo por app y el estado real de cada una.</p>
+  <div class="appgrid">
+    <div class="app-t" style="--m:#ECA154"><span class="tg hb-badge hb-badge--info">Nuevo</span>
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#ECA154" opacity=".22"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#ECA154" stroke-width="5"/><path d="M32 58h36M56 46l12 12-12 12" fill="none" stroke="#ECA154" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>HBTrade360</b><small>Comercio exterior</small></div>
+    <div class="app-t" style="--m:#DECD63"><span class="tg hb-badge hb-badge--ok">v3.0</span>
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#DECD63" opacity=".28"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#B39B2E" stroke-width="5"/><path d="M32 68l12-14 10 9 14-19" fill="none" stroke="#B39B2E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Costeo360</b><small>Costos, landed cost y precios</small></div>
+    <div class="app-t" style="--m:#0072CE"><span class="tg hb-badge hb-badge--info">Nuevo</span>
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#0072CE" opacity=".18"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#0072CE" stroke-width="5"/><circle cx="50" cy="50" r="10" fill="none" stroke="#0072CE" stroke-width="5"/><path d="M32 80a18 18 0 0 1 36 0" fill="none" stroke="#0072CE" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>Cliente360</b><small>Historia, crédito e inteligencia comercial</small></div>
+    <div class="app-t" style="--m:#A9C47F"><span class="tg hb-badge hb-badge--info">Nuevo</span>
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#A9C47F" opacity=".3"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#6E8A44" stroke-width="5"/><circle cx="40" cy="47" r="8" fill="none" stroke="#6E8A44" stroke-width="5"/><circle cx="62" cy="47" r="8" fill="none" stroke="#6E8A44" stroke-width="5"/><path d="M28 78a13 13 0 0 1 24 0M50 78a13 13 0 0 1 24 0" fill="none" stroke="#6E8A44" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>CRM Hidrobart</b><small>Pipeline de ventas · v2</small></div>
+    <div class="app-t" style="--m:#BA9CC5">
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#BA9CC5" opacity=".3"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#7C5D8A" stroke-width="5"/><path d="M50 34v46M34 46l32 22M66 46L34 68" fill="none" stroke="#7C5D8A" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="34" r="6" fill="#7C5D8A"/><circle cx="34" cy="68" r="6" fill="#7C5D8A"/><circle cx="66" cy="68" r="6" fill="#7C5D8A"/></svg>
+      <b>Cortex</b><small>Cerebro de IA</small></div>
+    <div class="app-t" style="--m:#6CACE4">
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#6CACE4" opacity=".3"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#2E7BB5" stroke-width="5"/><path d="M34 74V56M50 74V40M66 74V62" stroke="#2E7BB5" stroke-width="7" stroke-linecap="round"/></svg>
+      <b>Dashboard Institucional</b><small>Business Intelligence · Superset</small></div>
+    <div class="app-t" style="--m:#672E45"><span class="tg hb-badge hb-badge--warn">Prototipo</span>
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#672E45" opacity=".22"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#672E45" stroke-width="5"/><rect x="32" y="40" width="36" height="34" rx="4" fill="none" stroke="#672E45" stroke-width="5"/><path d="M32 52h36M42 34v10M58 34v10" stroke="#672E45" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>Planificador</b><small>Acciones y seguimiento</small></div>
+    <div class="app-t" style="--m:#7A99AC">
+      <svg class="hexi" viewBox="0 0 100 115"><polygon points="50,0 100,28.75 100,86.25 50,115 0,86.25 0,28.75" fill="#7A99AC" opacity=".3"/><polygon points="50,12 89,34.5 89,79.5 50,102 11,79.5 11,34.5" fill="none" stroke="#4E6B7E" stroke-width="5"/><path d="M36 38h22l10 10v30H36z" fill="none" stroke="#4E6B7E" stroke-width="5" stroke-linejoin="round"/><path d="M44 60h16M44 68h16" stroke="#4E6B7E" stroke-width="4.5" stroke-linecap="round"/></svg>
+      <b>Documentación</b><small>Guías, MFA, estándares</small></div>
+  </div>
+  <div class="note" style="margin-top:16px">
+    <b>Qué cambia en <code class="inl">apps.json</code>.</b> El campo <code class="inl">icon</code> deja de
+    ser un emoji y pasa a ser el nombre de un ícono del sprite hexagonal. Se agrega
+    <code class="inl">module</code> (clave del color de catálogo) y <code class="inl">accent</code> se
+    resuelve por token, no por HEX escrito a mano.
+  </div>
+</section>
+
+<!-- ═══ 10 MÓDULOS ═══ -->
+<section id="mod">
+  <div class="sec-head"><span class="sec-n">10</span><h2 class="hb-title">Asignación de color por módulo</h2></div>
+  <p class="sec-sub">Cada app recibe un color de la paleta de catálogo. Sirve para el ícono, el borde superior
+  de sus cards y el indicador del rail — nunca para texto ni para botones (esos siguen en Azul Flow).</p>
+  <table class="spec">
+    <thead><tr><th>App</th><th>Color</th><th>Token</th><th>Extensión visual de marca</th></tr></thead>
+    <tbody>
+      <tr><td>HBTrade360</td><td><span style="display:inline-block;width:12px;height:12px;background:#ECA154;border-radius:3px;vertical-align:-1px"></span> Naranja</td><td><code class="inl">--hbp-cat-orange</code></td><td>flujo</td></tr>
+      <tr><td>Costeo360</td><td><span style="display:inline-block;width:12px;height:12px;background:#DECD63;border-radius:3px;vertical-align:-1px"></span> Amarillo</td><td><code class="inl">--hbp-cat-yellow</code></td><td>crecimiento</td></tr>
+      <tr><td>Cliente360</td><td><span style="display:inline-block;width:12px;height:12px;background:#0072CE;border-radius:3px;vertical-align:-1px"></span> Azul Flow</td><td><code class="inl">--hbp-flow</code></td><td>excelencia</td></tr>
+      <tr><td>CRM v2</td><td><span style="display:inline-block;width:12px;height:12px;background:#A9C47F;border-radius:3px;vertical-align:-1px"></span> Verde</td><td><code class="inl">--hbp-cat-green</code></td><td>equipos</td></tr>
+      <tr><td>Cortex</td><td><span style="display:inline-block;width:12px;height:12px;background:#BA9CC5;border-radius:3px;vertical-align:-1px"></span> Lila</td><td><code class="inl">--hbp-cat-lila</code></td><td>innovación</td></tr>
+      <tr><td>Dashboard Institucional</td><td><span style="display:inline-block;width:12px;height:12px;background:#6CACE4;border-radius:3px;vertical-align:-1px"></span> Celeste</td><td><code class="inl">--hbp-celeste</code></td><td>sistema</td></tr>
+      <tr><td>Planificador</td><td><span style="display:inline-block;width:12px;height:12px;background:#672E45;border-radius:3px;vertical-align:-1px"></span> Vino</td><td><code class="inl">--hbp-cat-wine</code></td><td>crecimiento</td></tr>
+      <tr><td>Documentación</td><td><span style="display:inline-block;width:12px;height:12px;background:#7A99AC;border-radius:3px;vertical-align:-1px"></span> Metal</td><td><code class="inl">--hbp-cat-metal</code></td><td>sistema</td></tr>
+      <tr><td>DocProcesos</td><td><span style="display:inline-block;width:12px;height:12px;background:#566361;border-radius:3px;vertical-align:-1px"></span> Gris</td><td><code class="inl">--hbp-cat-gray</code></td><td>flujo</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 11 MIGRACIÓN ═══ -->
+<section id="mig">
+  <div class="sec-head"><span class="sec-n">11</span><h2 class="hb-title">Cómo migra una app</h2></div>
+  <p class="sec-sub">Seis pasos. Costeo360 va primero por ser la referencia validada del ecosistema.</p>
+  <pre><code># 1 · Tokens
+cp hidrobintel-tokens.css ./src/styles/
+# en globals.css:  @import './styles/hidrobintel-tokens.css';
+
+# 2 · Atributos de tema y densidad en el documento
+&lt;html lang="es" data-theme="light" data-density="comfortable"&gt;
+
+# 3 · Sustituir AppLayout.jsx por AppShell.tsx (rail + sidebar)
+#    navSections se mantiene hardcoded por app — decisión vigente
+
+# 4 · Reemplazar estilos en línea por clases .hb-*
+#    grep -rn "style={{" src/   →  cada resultado es deuda a saldar
+
+# 5 · Marcar las tablas de listado
+&lt;table className="hb-table hb-table--responsive"&gt;
+  &lt;td data-label="Margen" className="num"&gt;36.3%&lt;/td&gt;
+
+# 6 · Verificar
+#    - grep -rniE "#[0-9a-f]{6}" src/components/  → debe salir vacío
+#    - axe DevTools sin violaciones de contraste en ambos temas
+#    - 360 / 768 / 1280 px sin scroll horizontal</code></pre>
+
+  <div class="note warn" style="margin-top:16px">
+    <b>Archivos a actualizar en el repositorio.</b>
+    <code class="inl">CLAUDE.md</code> (raíz) — derogar la regla del sidebar Carbón por app y la de
+    «sin dark theme»; <code class="inl">HBLayoutApp/hidrobart-tokens.css</code> — marcar como v1
+    congelado; <code class="inl">_registro/proyectos.md</code> — apuntar la spec de layout a este
+    documento; <code class="inl">hidroSSOv2/frontend/data/apps.json</code> — íconos y módulo.
+  </div>
+</section>
+
+</div>
+
+<footer>
+  hidroBIntel · Design System v2.0 — borrador de trabajo · Hidrobart S.A. de C.V. · Evolve Consultores<br>
+  Paleta y tipografía derivadas del Brand Guideline Hidrobart (La Trividad, 2025)
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  function bind(attr, name){
+    document.querySelectorAll('['+attr+']').forEach(function(b){
+      b.addEventListener('click', function(){
+        var v = b.getAttribute(attr);
+        root.setAttribute(name, v);
+        document.querySelectorAll('['+attr+']').forEach(function(o){
+          o.setAttribute('aria-pressed', String(o === b));
+        });
+      });
+    });
+  }
+  bind('data-theme-btn','data-theme');
+  bind('data-den-btn','data-density');
+
+  var shell = document.getElementById('shellDemo');
+  var mob = document.getElementById('mobPreview');
+  document.querySelectorAll('[data-vp-btn]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.getAttribute('data-vp-btn');
+      shell.setAttribute('data-vp', v);
+      mob.style.display = (v === 'mobile') ? 'block' : 'none';
+      document.querySelectorAll('[data-vp-btn]').forEach(function(o){
+        o.setAttribute('aria-pressed', String(o === b));
+      });
+    });
+  });
+
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+})();
+</script>
+</body>
+</html>

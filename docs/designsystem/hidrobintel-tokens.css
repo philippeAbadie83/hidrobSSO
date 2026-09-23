@@ -1,0 +1,551 @@
+/* ═══════════════════════════════════════════════════════════════════════
+ *  hidroBIntel · DESIGN TOKENS v2.0.0
+ *  Plataforma de apps corporativas Hidrobart — hidrobintel.hidrobart.com
+ *
+ *  Fuente de marca : Brand Guideline Hidrobart (La Trividad, 2025)
+ *  Reemplaza       : hidrobart-tokens.css v1.0.0 (HBLayoutApp)
+ *
+ *  ARQUITECTURA DE 3 CAPAS
+ *    1. PRIMITIVOS  --hbp-*   valores crudos de marca. NUNCA usar en componentes.
+ *    2. SEMÁNTICOS  --hb-*    intención de uso. Cambian con tema y densidad.
+ *    3. COMPONENTE  --hbc-*   medidas de un componente concreto.
+ *
+ *  REGLA DE ORO: un componente solo consume capa 2 y 3. Si escribes un HEX
+ *  literal en un componente, estás rompiendo el sistema.
+ *
+ *  USO
+ *    @import './hidrobintel-tokens.css';
+ *    <html data-theme="light|dark" data-density="comfortable|compact">
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAPA 1 · PRIMITIVOS DE MARCA  (invariantes: no cambian con el tema)
+ * ─────────────────────────────────────────────────────────────────────── */
+:root {
+
+  /* Paleta principal — presente en el logo */
+  --hbp-carbon:        #13294B;  /* Carbón Activado · PANTONE 2767 C */
+  --hbp-blue:          #3A5DAE;  /* Azul Hidrobart  · PANTONE 7455 C */
+  --hbp-celeste:       #6CACE4;  /* Celeste Hidrobart · PANTONE 284 C */
+  --hbp-gray:          #3F4444;  /* Gris Hidrobart  · PANTONE 446 C */
+
+  /* Paleta complementaria */
+  --hbp-resin:         #2C5697;  /* Azul Resina   · PANTONE 7685 C */
+  --hbp-flow:          #0072CE;  /* Azul Flow     · PANTONE 285 C */
+  --hbp-calypso:       #DDE5ED;  /* Celeste Calypso · PANTONE 656 C */
+
+  /* Rampas derivadas — necesarias para accesibilidad, NO son colores nuevos
+     de marca: son tintes/sombras calculados de Azul Flow y Celeste. */
+  --hbp-flow-900:      #003F72;
+  --hbp-flow-800:      #004E8A;
+  --hbp-flow-700:      #005FA8;
+  --hbp-flow-600:      #0072CE;   /* = Azul Flow oficial */
+  --hbp-flow-400:      #3D95E0;
+  --hbp-flow-300:      #5AA9E8;
+  --hbp-celeste-300:   #8FC4EE;
+  --hbp-celeste-100:   #C8E1F6;
+
+  /* Neutros fríos derivados de Carbón + Calypso */
+  --hbp-n-00:          #FFFFFF;
+  --hbp-n-05:          #F5F8FB;
+  --hbp-n-10:          #EDF2F8;
+  --hbp-n-20:          #D8E2EC;
+  --hbp-n-30:          #B9C9DA;
+  --hbp-n-50:          #5B6B7C;
+  --hbp-n-60:          #41556B;
+  --hbp-n-80:          #1B3557;
+  --hbp-n-90:          #122641;
+  --hbp-n-95:          #0A1729;
+  --hbp-n-on-dark-1:   #E8EFF7;
+  --hbp-n-on-dark-2:   #A9BDD4;
+  --hbp-n-on-dark-3:   #7E93AC;
+  --hbp-border-dark:   #24406B;
+  --hbp-border-dark-2: #2E4E7D;
+
+  /* Paleta de catálogo — identidad por módulo/sección.
+     Sólo como relleno o acento; nunca como texto sobre blanco. */
+  --hbp-cat-gray:      #566361;
+  --hbp-cat-metal:     #7A99AC;
+  --hbp-cat-yellow:    #DECD63;
+  --hbp-cat-green:     #A9C47F;
+  --hbp-cat-wine:      #672E45;
+  --hbp-cat-lila:      #BA9CC5;
+  --hbp-cat-orange:    #ECA154;
+
+  /* Semáforo — ajustado para pasar AA en ambos temas */
+  --hbp-ok-600:        #15803D;  --hbp-ok-400:  #4ADE80;  --hbp-ok-050:  #DCFCE7;
+  --hbp-warn-600:      #A16207;  --hbp-warn-400:#FACC15;  --hbp-warn-050:#FEF9C3;
+  --hbp-err-600:       #B91C1C;  --hbp-err-400: #F87171;  --hbp-err-050: #FEE2E2;
+  --hbp-info-600:      #005FA8;  --hbp-info-400:#5AA9E8;  --hbp-info-050:#E0EEFA;
+
+  /* ── Tipografía ───────────────────────────────────────────────────── */
+  --hb-font:      'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --hb-font-mono: 'Cascadia Code', 'Fira Code', ui-monospace, Consolas, monospace;
+  /* Nexa es la tipografía del LOGO (comercial). No se usa en UI. */
+
+  --hb-fw-regular: 400;
+  --hb-fw-medium:  500;
+  --hb-fw-semibold:600;
+  --hb-fw-bold:    700;
+  --hb-fw-black:   800;
+
+  /* Escala modular 1.200 sobre 14px, expresada en rem para respetar
+     el tamaño de fuente del sistema operativo del usuario. */
+  --hb-fs-2xs:  0.6875rem;  /* 11px · micro-labels */
+  --hb-fs-xs:   0.75rem;    /* 12px · metadatos, badges */
+  --hb-fs-sm:   0.8125rem;  /* 13px · tablas densas */
+  --hb-fs-base: 0.875rem;   /* 14px · cuerpo de app */
+  --hb-fs-md:   1rem;       /* 16px · cuerpo de lectura, inputs móvil */
+  --hb-fs-lg:   1.25rem;    /* 20px · títulos de card */
+  --hb-fs-xl:   1.5rem;     /* 24px · título de sección */
+  --hb-fs-2xl:  1.75rem;    /* 28px · título de página */
+  --hb-fs-3xl:  2.25rem;    /* 36px · cifras de KPI */
+  --hb-fs-kpi:  clamp(1.75rem, 1.2rem + 2vw, 2.75rem); /* KPI fluido */
+
+  --hb-lh-tight:   1.2;
+  --hb-lh-normal:  1.5;
+  --hb-lh-relaxed: 1.7;
+  --hb-tracking-label: 0.08em;
+
+  /* ── Radios ───────────────────────────────────────────────────────── */
+  --hb-radius-xs:   4px;
+  --hb-radius-sm:   6px;
+  --hb-radius:      8px;
+  --hb-radius-md:  10px;
+  --hb-radius-lg:  14px;
+  --hb-radius-pill: 9999px;
+
+  /* ── Motion ───────────────────────────────────────────────────────── */
+  --hb-ease:        cubic-bezier(0.2, 0, 0, 1);
+  --hb-ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --hb-dur-fast:    120ms;
+  --hb-dur:         180ms;
+  --hb-dur-slow:    240ms;
+
+  /* ── Elevación (z-index) ──────────────────────────────────────────── */
+  --hb-z-base:     0;
+  --hb-z-sticky:  100;
+  --hb-z-rail:    200;
+  --hb-z-drawer:  300;
+  --hb-z-overlay: 400;
+  --hb-z-toast:   500;
+
+  /* ── Breakpoints (documentales; en CSS se usan literales) ─────────── */
+  --hb-bp-sm:  480px;
+  --hb-bp-md:  768px;
+  --hb-bp-lg: 1024px;
+  --hb-bp-xl: 1440px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAPA 2 · SEMÁNTICOS — TEMA CLARO  (default)
+ * Todos los pares texto/fondo declarados aquí cumplen WCAG 2.1 AA.
+ * El ratio verificado va anotado al lado.
+ * ─────────────────────────────────────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Superficies */
+  --hb-canvas:            var(--hbp-n-05);    /* fondo de la app */
+  --hb-surface:           var(--hbp-n-00);    /* cards, tablas, modales */
+  --hb-surface-sunken:    var(--hbp-n-10);    /* zonas hundidas, filtros */
+  --hb-surface-raised:    var(--hbp-n-00);
+  --hb-surface-inverse:   var(--hbp-carbon);
+  --hb-overlay:           rgba(10, 23, 41, 0.55);
+
+  /* Bordes */
+  --hb-border:            var(--hbp-n-20);
+  --hb-border-strong:     var(--hbp-n-30);
+  --hb-border-inverse:    rgba(255,255,255,0.10);
+
+  /* Texto */
+  --hb-text:              var(--hbp-carbon);      /* 13.6:1 sobre canvas */
+  --hb-text-secondary:    var(--hbp-n-60);        /*  7.2:1 */
+  --hb-text-muted:        var(--hbp-n-50);        /*  5.1:1 — v1 usaba #94a3b8 (2.4:1, FALLA) */
+  --hb-text-on-accent:    var(--hbp-n-00);        /*  4.9:1 sobre Azul Flow */
+  --hb-text-on-inverse:   var(--hbp-n-00);        /* 14.5:1 sobre Carbón */
+  --hb-text-inverse-muted:var(--hbp-n-on-dark-2);
+
+  /* Acento interactivo */
+  --hb-accent:            var(--hbp-flow-700);    /*  6.2:1 — links y texto interactivo */
+  --hb-accent-solid:      var(--hbp-flow-600);    /* fondo de botón primario */
+  --hb-accent-solid-hover:var(--hbp-flow-700);
+  --hb-accent-solid-active:var(--hbp-flow-800);
+  --hb-accent-subtle:     var(--hbp-info-050);    /* fondo de chip/selección */
+  --hb-accent-border:     var(--hbp-flow-400);
+  --hb-focus-ring:        var(--hbp-flow-600);
+
+  /* Navegación */
+  --hb-rail-bg:           var(--hbp-carbon);      /* rail global: SIEMPRE Carbón */
+  --hb-rail-fg:           var(--hbp-n-on-dark-2);
+  --hb-rail-fg-active:    var(--hbp-n-00);
+  --hb-rail-active-bg:    var(--hbp-blue);
+  --hb-sidebar-bg:        var(--hbp-n-00);
+  --hb-sidebar-fg:        var(--hbp-n-60);
+  --hb-sidebar-fg-active: var(--hbp-flow-800);
+  --hb-sidebar-active-bg: var(--hbp-info-050);
+  --hb-sidebar-hover-bg:  var(--hbp-n-10);
+  --hb-topbar-bg:         var(--hbp-n-00);
+
+  /* Tablas */
+  --hb-table-header-bg:   var(--hbp-blue);        /* Azul Hidrobart — señal cognitiva del equipo */
+  --hb-table-header-fg:   var(--hbp-n-00);        /*  6.3:1 */
+  --hb-table-row-alt:     var(--hbp-n-05);
+  --hb-table-row-hover:   var(--hbp-info-050);
+
+  /* Estados */
+  --hb-ok:      var(--hbp-ok-600);   --hb-ok-bg:   var(--hbp-ok-050);
+  --hb-warn:    var(--hbp-warn-600); --hb-warn-bg: var(--hbp-warn-050);
+  --hb-error:   var(--hbp-err-600);  --hb-error-bg:var(--hbp-err-050);
+  --hb-info:    var(--hbp-info-600); --hb-info-bg: var(--hbp-info-050);
+
+  /* Sombras */
+  --hb-shadow-sm: 0 1px 2px rgba(19,41,75,.06), 0 1px 3px rgba(19,41,75,.08);
+  --hb-shadow:    0 2px 4px rgba(19,41,75,.06), 0 8px 20px rgba(19,41,75,.10);
+  --hb-shadow-lg: 0 4px 8px rgba(19,41,75,.08), 0 16px 40px rgba(19,41,75,.14);
+
+  /* Patrón hexagonal de marca */
+  --hb-hex-stroke: rgba(19,41,75,0.07);
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAPA 2 · SEMÁNTICOS — TEMA OSCURO
+ * En oscuro los roles se invierten: Celeste pasa a ser el acento legible
+ * (Azul Hidrobart da 2.5:1 sobre superficie oscura → inutilizable como texto).
+ * ─────────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --hb-canvas:            var(--hbp-n-95);
+  --hb-surface:           var(--hbp-n-90);
+  --hb-surface-sunken:    var(--hbp-n-95);
+  --hb-surface-raised:    var(--hbp-n-80);
+  --hb-surface-inverse:   var(--hbp-n-00);
+  --hb-overlay:           rgba(3, 9, 18, 0.70);
+
+  --hb-border:            var(--hbp-border-dark);
+  --hb-border-strong:     var(--hbp-border-dark-2);
+  --hb-border-inverse:    rgba(19,41,75,0.12);
+
+  --hb-text:              var(--hbp-n-on-dark-1);  /* 13.1:1 sobre surface */
+  --hb-text-secondary:    var(--hbp-n-on-dark-2);  /*  7.9:1 */
+  --hb-text-muted:        var(--hbp-n-on-dark-3);  /*  4.8:1 */
+  --hb-text-on-accent:    var(--hbp-n-00);
+  --hb-text-on-inverse:   var(--hbp-carbon);
+  --hb-text-inverse-muted:var(--hbp-n-50);
+
+  --hb-accent:            var(--hbp-celeste-300);  /*  8.2:1 */
+  --hb-accent-solid:      var(--hbp-flow-600);
+  --hb-accent-solid-hover:var(--hbp-flow-400);
+  --hb-accent-solid-active:var(--hbp-flow-300);
+  --hb-accent-subtle:     rgba(108,172,228,0.14);
+  --hb-accent-border:     var(--hbp-flow-400);
+  --hb-focus-ring:        var(--hbp-celeste);
+
+  --hb-rail-bg:           #071223;                 /* Carbón profundizado */
+  --hb-rail-fg:           var(--hbp-n-on-dark-3);
+  --hb-rail-fg-active:    var(--hbp-n-00);
+  --hb-rail-active-bg:    var(--hbp-resin);
+  --hb-sidebar-bg:        var(--hbp-n-90);
+  --hb-sidebar-fg:        var(--hbp-n-on-dark-2);
+  --hb-sidebar-fg-active: var(--hbp-celeste-300);
+  --hb-sidebar-active-bg: rgba(108,172,228,0.14);
+  --hb-sidebar-hover-bg:  rgba(255,255,255,0.05);
+  --hb-topbar-bg:         var(--hbp-n-90);
+
+  /* La cabecera azul se mantiene como señal, pero atenuada: #3A5DAE a plena
+     saturación sobre fondo oscuro deslumbra y rompe la jerarquía. */
+  --hb-table-header-bg:   var(--hbp-n-80);
+  --hb-table-header-fg:   var(--hbp-celeste-300);
+  --hb-table-row-alt:     rgba(255,255,255,0.025);
+  --hb-table-row-hover:   rgba(108,172,228,0.10);
+
+  --hb-ok:      var(--hbp-ok-400);   --hb-ok-bg:   rgba(74,222,128,0.14);
+  --hb-warn:    var(--hbp-warn-400); --hb-warn-bg: rgba(250,204,21,0.14);
+  --hb-error:   var(--hbp-err-400);  --hb-error-bg:rgba(248,113,113,0.14);
+  --hb-info:    var(--hbp-info-400); --hb-info-bg: rgba(90,169,232,0.14);
+
+  --hb-shadow-sm: 0 1px 2px rgba(0,0,0,.40);
+  --hb-shadow:    0 4px 16px rgba(0,0,0,.45);
+  --hb-shadow-lg: 0 12px 36px rgba(0,0,0,.55);
+
+  --hb-hex-stroke: rgba(255,255,255,0.06);
+}
+
+/* Respeta la preferencia del sistema si no hay data-theme explícito */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { color-scheme: dark; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAPA 2b · DENSIDAD
+ * Una sola variable de escala gobierna espaciado y alturas de control.
+ * `comfortable` = dashboards y lectura.  `compact` = pantallas operativas
+ * (tablas de costeo, pipeline, listados largos).
+ * ─────────────────────────────────────────────────────────────────────── */
+:root,
+[data-density="comfortable"] {
+  --hb-density: 1;
+  --hb-fs-body: var(--hb-fs-base);
+  --hb-control-h: 40px;
+  --hb-row-h:     48px;
+  --hb-card-pad:  20px;
+  --hb-page-pad:  32px;
+}
+
+[data-density="compact"] {
+  --hb-density: 0.75;
+  --hb-fs-body: var(--hb-fs-sm);
+  --hb-control-h: 32px;
+  --hb-row-h:     34px;
+  --hb-card-pad:  14px;
+  --hb-page-pad:  20px;
+}
+
+/* Escala de espaciado dependiente de densidad */
+:root {
+  --hb-s1:  calc(4px  * var(--hb-density));
+  --hb-s2:  calc(8px  * var(--hb-density));
+  --hb-s3:  calc(12px * var(--hb-density));
+  --hb-s4:  calc(16px * var(--hb-density));
+  --hb-s5:  calc(20px * var(--hb-density));
+  --hb-s6:  calc(24px * var(--hb-density));
+  --hb-s8:  calc(32px * var(--hb-density));
+  --hb-s10: calc(40px * var(--hb-density));
+  --hb-s12: calc(48px * var(--hb-density));
+}
+
+/* En móvil la densidad compacta se ignora para los controles táctiles:
+   ningún objetivo de toque baja de 44px (WCAG 2.5.5 / HIG). */
+@media (max-width: 767px) {
+  :root, [data-density] {
+    --hb-control-h: 44px;
+    --hb-row-h:     auto;
+    --hb-page-pad:  16px;
+    --hb-fs-body:   var(--hb-fs-md);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAPA 3 · TOKENS DE COMPONENTE — AppShell hidroBIntel
+ * ─────────────────────────────────────────────────────────────────────── */
+:root {
+  --hbc-rail-w:            56px;   /* rail global de plataforma — siempre visible */
+  --hbc-sidebar-w:        248px;   /* navegación de la app activa */
+  --hbc-sidebar-collapsed: 64px;
+  --hbc-topbar-h:          56px;
+  --hbc-max-content:     1440px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * ACENTO POR MÓDULO
+ * Cada app del ecosistema recibe un color de la paleta de catálogo y un
+ * ícono hexagonal de las extensiones visuales de marca. Reemplaza los
+ * emoji del portal actual.
+ * ─────────────────────────────────────────────────────────────────────── */
+[data-module="hbtrade360"] { --hb-module: var(--hbp-cat-orange); }
+[data-module="costeo360"]  { --hb-module: var(--hbp-cat-yellow); }
+[data-module="cliente360"] { --hb-module: var(--hbp-flow);       }
+[data-module="crm2"]       { --hb-module: var(--hbp-cat-green);  }
+[data-module="cortex"]     { --hb-module: var(--hbp-cat-lila);   }
+[data-module="dashb"]      { --hb-module: var(--hbp-celeste);    }
+[data-module="unidum"]     { --hb-module: var(--hbp-cat-wine);   }
+[data-module="docs"]       { --hb-module: var(--hbp-cat-metal);  }
+[data-module="docprocesos"]{ --hb-module: var(--hbp-cat-gray);   }
+:root                      { --hb-module: var(--hbp-flow);       }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * BASE
+ * ─────────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--hb-font);
+  font-size: var(--hb-fs-body);
+  line-height: var(--hb-lh-normal);
+  color: var(--hb-text);
+  background: var(--hb-canvas);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--hb-dur) var(--hb-ease),
+              color var(--hb-dur) var(--hb-ease);
+}
+
+/* Foco visible y consistente — ausente en v1 */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--hb-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--hb-radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * UTILIDADES TIPOGRÁFICAS
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-display { font-size: var(--hb-fs-2xl); font-weight: var(--hb-fw-bold);
+              line-height: var(--hb-lh-tight); letter-spacing: -0.015em; color: var(--hb-text); }
+.hb-title   { font-size: var(--hb-fs-xl);  font-weight: var(--hb-fw-bold);
+              line-height: var(--hb-lh-tight); color: var(--hb-text); }
+.hb-heading { font-size: var(--hb-fs-lg);  font-weight: var(--hb-fw-semibold);
+              line-height: var(--hb-lh-tight); color: var(--hb-text); }
+.hb-body    { font-size: var(--hb-fs-body);font-weight: var(--hb-fw-regular);
+              color: var(--hb-text-secondary); line-height: var(--hb-lh-relaxed); }
+.hb-caption { font-size: var(--hb-fs-xs);  color: var(--hb-text-muted); }
+.hb-label   { font-size: var(--hb-fs-2xs); font-weight: var(--hb-fw-semibold);
+              text-transform: uppercase; letter-spacing: var(--hb-tracking-label);
+              color: var(--hb-text-muted); }
+.hb-kpi     { font-size: var(--hb-fs-kpi); font-weight: var(--hb-fw-bold);
+              line-height: 1; letter-spacing: -0.02em;
+              font-variant-numeric: tabular-nums; color: var(--hb-text); }
+.hb-num     { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * BOTONES
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--hb-s2);
+  height: var(--hb-control-h);
+  padding: 0 var(--hb-s4);
+  font: inherit;
+  font-size: var(--hb-fs-body);
+  font-weight: var(--hb-fw-semibold);
+  border-radius: var(--hb-radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--hb-dur-fast) var(--hb-ease),
+              border-color var(--hb-dur-fast) var(--hb-ease),
+              box-shadow var(--hb-dur-fast) var(--hb-ease),
+              transform var(--hb-dur-fast) var(--hb-ease);
+}
+.hb-btn:active:not(:disabled) { transform: translateY(1px); }
+.hb-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.hb-btn--primary { background: var(--hb-accent-solid); color: var(--hb-text-on-accent); }
+.hb-btn--primary:hover:not(:disabled) { background: var(--hb-accent-solid-hover); }
+
+.hb-btn--secondary { background: var(--hb-surface); color: var(--hb-text); border-color: var(--hb-border-strong); }
+.hb-btn--secondary:hover:not(:disabled) { background: var(--hb-surface-sunken); }
+
+.hb-btn--ghost { background: transparent; color: var(--hb-accent); }
+.hb-btn--ghost:hover:not(:disabled) { background: var(--hb-accent-subtle); }
+
+.hb-btn--danger { background: var(--hb-error); color: #fff; }
+
+.hb-btn--icon { width: var(--hb-control-h); padding: 0; }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * CAMPOS
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-field { display: flex; flex-direction: column; gap: var(--hb-s1); }
+.hb-input, .hb-select {
+  height: var(--hb-control-h);
+  padding: 0 var(--hb-s3);
+  font: inherit; font-size: var(--hb-fs-body);
+  color: var(--hb-text);
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border-strong);
+  border-radius: var(--hb-radius);
+  transition: border-color var(--hb-dur-fast) var(--hb-ease),
+              box-shadow var(--hb-dur-fast) var(--hb-ease);
+}
+.hb-input::placeholder { color: var(--hb-text-muted); }
+.hb-input:hover, .hb-select:hover { border-color: var(--hb-accent-border); }
+.hb-input[aria-invalid="true"] { border-color: var(--hb-error); }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * SUPERFICIES
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-card {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border);
+  border-radius: var(--hb-radius-lg);
+  padding: var(--hb-card-pad);
+  box-shadow: var(--hb-shadow-sm);
+}
+.hb-card--accent { border-top: 3px solid var(--hb-module); }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * BADGES
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-badge {
+  display: inline-flex; align-items: center; gap: var(--hb-s1);
+  padding: 2px var(--hb-s2);
+  border-radius: var(--hb-radius-pill);
+  font-size: var(--hb-fs-2xs); font-weight: var(--hb-fw-semibold);
+  line-height: 1.6; white-space: nowrap;
+}
+.hb-badge--ok    { background: var(--hb-ok-bg);    color: var(--hb-ok); }
+.hb-badge--warn  { background: var(--hb-warn-bg);  color: var(--hb-warn); }
+.hb-badge--error { background: var(--hb-error-bg); color: var(--hb-error); }
+.hb-badge--info  { background: var(--hb-info-bg);  color: var(--hb-info); }
+.hb-badge--neutral { background: var(--hb-surface-sunken); color: var(--hb-text-secondary); }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * TABLA / DATA GRID
+ * En <768px se transforma en cards apiladas (regla heredada de v1,
+ * ahora implementada, no sólo declarada).
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-table { width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: var(--hb-fs-body); }
+.hb-table thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--hb-table-header-bg);
+  color: var(--hb-table-header-fg);
+  font-size: var(--hb-fs-2xs); font-weight: var(--hb-fw-bold);
+  text-transform: uppercase; letter-spacing: var(--hb-tracking-label);
+  text-align: left; padding: var(--hb-s3) var(--hb-s4); white-space: nowrap;
+}
+.hb-table tbody td {
+  height: var(--hb-row-h);
+  padding: var(--hb-s2) var(--hb-s4);
+  border-bottom: 1px solid var(--hb-border);
+  color: var(--hb-text-secondary);
+}
+.hb-table tbody tr:nth-child(even) { background: var(--hb-table-row-alt); }
+.hb-table tbody tr:hover { background: var(--hb-table-row-hover); }
+.hb-table .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--hb-text); }
+
+@media (max-width: 767px) {
+  .hb-table--responsive thead { display: none; }
+  .hb-table--responsive tbody tr {
+    display: block; margin-bottom: var(--hb-s3);
+    background: var(--hb-surface);
+    border: 1px solid var(--hb-border);
+    border-radius: var(--hb-radius-lg);
+    padding: var(--hb-s3);
+  }
+  .hb-table--responsive tbody td {
+    display: flex; justify-content: space-between; gap: var(--hb-s4);
+    border: 0; padding: var(--hb-s1) 0; height: auto;
+  }
+  .hb-table--responsive tbody td::before {
+    content: attr(data-label);
+    font-size: var(--hb-fs-2xs); font-weight: var(--hb-fw-semibold);
+    text-transform: uppercase; letter-spacing: var(--hb-tracking-label);
+    color: var(--hb-text-muted);
+  }
+  .hb-table--responsive .num { text-align: right; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * PATRÓN HEXAGONAL DE MARCA
+ * ─────────────────────────────────────────────────────────────────────── */
+.hb-hex-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpolygon points='20,2 38,12 38,34 20,44 2,34 2,12' fill='none' stroke='%23808080' stroke-opacity='.5' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 40px 46px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ *  FIN — hidroBIntel Design Tokens v2.0.0
+ * ═══════════════════════════════════════════════════════════════════════ */

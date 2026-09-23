@@ -33,6 +33,7 @@ ALLOWED_APPS = {
     "cliente360":   "https://cliente360.hidrobart.com/auth/sso",
     "comex360":     "https://comex360.hidrobart.com/auth/sso",
     "hbtrade360":   "https://hbtrade360.hidrobart.com/auth/sso",
+    "prospectscout": "https://prospectscout.hidrobart.com/auth/sso",
 }
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
