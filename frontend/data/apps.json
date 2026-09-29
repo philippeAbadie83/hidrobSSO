@@ -118,6 +118,18 @@
   "ssoId": null,
   "active": true,
   "tier": "team",
+  "roles": [
+   "SuperAdmin",
+   "Admin",
+   "Manager",
+   "Coordinador",
+   "Operador",
+   "Compras",
+   "Vendedor",
+   "CustomerSuccess",
+   "Observador",
+   "GerenteVentas"
+  ],
   "order": 7
  },
  {
@@ -145,6 +157,18 @@
   "ssoId": "prospectscout",
   "active": true,
   "tier": "team",
+  "roles": [
+   "SuperAdmin",
+   "Admin",
+   "Manager",
+   "Coordinador",
+   "Operador",
+   "Compras",
+   "Vendedor",
+   "CustomerSuccess",
+   "Observador",
+   "GerenteVentas"
+  ],
   "order": 9
  }
 ]
