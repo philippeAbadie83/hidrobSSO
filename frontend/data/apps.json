@@ -118,7 +118,10 @@
   "tag": "NUEVO",
   "ssoId": null,
   "active": true,
-  "tier": "public",
+  "tier": "admin",
+  "roles": [
+   "SuperAdmin"
+  ],
   "order": 5
  },
  {
