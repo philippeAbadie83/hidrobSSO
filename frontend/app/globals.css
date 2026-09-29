@@ -2,19 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
- * hidroBIntel — globals v2
- * Los design tokens viven en ./hidrobintel-tokens.css y se cargan desde
- * layout.tsx ANTES que este archivo. Aquí sólo va la capa de aplicación.
- *
- * Cambios respecto a v1:
- *  - Se eliminó la paleta --hidrobart-primary/dark/agua (#1E5FA8, #0A2349,
- *    #00A3C4). No pertenecen al BrandKit Hidrobart.
- *  - El body ya no fuerza fondo oscuro: lo decide el tema activo.
- *  - Inter dejó de ser la fuente base; ahora es Montserrat (estándar de marca).
- */
-
 @layer base {
+  :root {
+    --hidrobart-primary: #1E5FA8;
+    --hidrobart-dark: #0A2349;
+    --hidrobart-agua: #00A3C4;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -24,97 +18,110 @@
   }
 
   body {
-    background-color: var(--hb-canvas);
-    color: var(--hb-text);
-    font-family: var(--hb-font);
-    transition: background-color var(--hb-dur) var(--hb-ease),
-                color var(--hb-dur) var(--hb-ease);
+    background-color: #0A2349;
+    color: #ffffff;
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 
-  /* Foco visible y consistente en toda la plataforma */
-  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid var(--hb-focus-ring);
-    outline-offset: 2px;
-    border-radius: var(--hb-radius-xs);
-  }
-
+  /* Scrollbar personalizado */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--hb-border-strong);
-    border-radius: 4px;
+    background: rgba(30, 95, 168, 0.6);
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--hb-accent-border);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
+    background: rgba(30, 95, 168, 0.9);
   }
 }
 
 @layer components {
-  /* Glassmorphism — usado en el login (superficie oscura) */
+  /* Glassmorphism card */
   .glass-card {
     @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl;
   }
 
+  /* Botón primario Hidrobart */
   .btn-primary {
-    background: var(--hb-accent-solid);
-    color: var(--hb-text-on-accent);
-    @apply font-semibold rounded-xl px-6 py-3 transition-all duration-200
+    @apply bg-hidrobart-600 hover:bg-hidrobart-700 text-white font-semibold
+           rounded-xl px-6 py-3 transition-all duration-200
            shadow-md hover:shadow-lg active:scale-95
            disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
   }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--hb-accent-solid-hover);
-  }
 
+  /* Input de formulario */
   .input-field {
     @apply w-full bg-white/10 border border-white/20 rounded-xl
            px-4 py-3 text-white placeholder-white/40
-           focus:outline-none focus:bg-white/15
+           focus:outline-none focus:border-agua-400 focus:bg-white/15
            transition-all duration-200;
   }
-  .input-field:focus {
-    border-color: var(--hbp-celeste);
-  }
 
+  /* Badge de rol */
   .role-badge {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
   }
 }
 
 @layer utilities {
+  /* Texto con gradiente */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-agua-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-agua-400;
   }
 
+  /* Efecto hover para cards */
   .hover-lift {
     @apply transition-transform duration-200 hover:-translate-y-1;
   }
 
+  /* Animación de aparición */
   .animate-in {
     animation: slideUp 0.5s ease-out forwards;
   }
+}
 
-  /* Cifras: ancho fijo para que no "bailen" al actualizarse */
-  .tnum {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+/* Partículas de fondo animadas */
+.bg-particles {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100px) scale(1);
+    opacity: 0;
   }
 }
 
-/* Botón Microsoft — superficie clara sobre fondo oscuro del login */
+/* Microsoft button */
 .btn-microsoft {
   @apply flex items-center justify-center gap-3 w-full
          bg-white text-gray-800 font-semibold
@@ -129,6 +136,7 @@
   @apply opacity-70 cursor-not-allowed active:scale-100;
 }
 
+/* Loading spinner */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
