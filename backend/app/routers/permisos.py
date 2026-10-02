@@ -17,6 +17,7 @@ grupos, y la sesión de navegador es UNA forma de preguntar, no la única:
   SESIÓN — la capa de conveniencia para un navegador con cookie
     GET /sso/sesion/permisos?sid=&app=   rol + matriz de quien tiene esa sesión
     GET /sso/sesion/menu?sid=&app=       lo mismo, ya filtrado para el sidebar
+    GET /sso/sesion/mosaicos?sid=        los mosaicos del portal de esa sesión
 
   GET /sso/salud                         ¿responde la base de permisos?
 
@@ -182,6 +183,21 @@ async def sesion_menu(
         "rol": r["rol"],
         "etiqueta": r["etiqueta"],
         "menu": _guardar(bl_permisos.menu_de, app, r["permisos"]),
+    }
+
+
+@router.get("/sesion/mosaicos")
+async def sesion_mosaicos(sid: str = Query(..., description="session_id de HidroSSO")):
+    """Los mosaicos del portal que ve quien tiene esta sesión.
+
+    Sale de tbl_sso_mosaico + tbl_sso_mosaico_acceso. Una lista vacía es real
+    (no ve ninguno); si la base no responde es 503, nunca una lista vacía.
+    """
+    email, org = await _sesion(sid)
+    return {
+        "email": email,
+        "grupos": org,
+        "mosaicos": _guardar(bl_permisos.mosaicos_de, email, org),
     }
 
 

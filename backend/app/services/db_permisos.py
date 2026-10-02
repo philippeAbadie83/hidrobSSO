@@ -190,6 +190,34 @@ def get_asignacion(email: str, app_clave: str) -> Optional[dict]:
     )
 
 
+def get_mosaicos(email: str, org_roles: list[str]) -> list[dict]:
+    """Los mosaicos del portal que ve esta persona, en orden.
+
+    Lo ve si alguna fila de tbl_sso_mosaico_acceso coincide: por grupo de
+    Azure (tipo='grupo') o por su correo (tipo='persona'). Solo mosaicos
+    visibles de apps activas. Quién VE el mosaico no decide quién ENTRA:
+    eso sigue en tbl_sso_grupo_rol / tbl_sso_asignacion.
+    """
+    params: dict = {"email": email or ""}
+    por_grupo = "0"
+    if org_roles:
+        marcas = ", ".join(f":g{i}" for i in range(len(org_roles)))
+        params.update({f"g{i}": g for i, g in enumerate(org_roles)})
+        por_grupo = f"(x.tipo = 'grupo' AND x.valor IN ({marcas}))"
+    return _todos(
+        "SELECT m.app_clave, a.nombre, a.url_base, m.subtitulo, m.descripcion, "
+        "       m.icono, m.insignia, m.lanza, m.orden, m.version, m.version_fecha "
+        "FROM tbl_sso_mosaico m "
+        "JOIN tbl_sso_app a ON a.app_clave = m.app_clave "
+        "WHERE m.visible = 1 AND a.activo = 1 "
+        "  AND EXISTS (SELECT 1 FROM tbl_sso_mosaico_acceso x "
+        "              WHERE x.app_clave = m.app_clave "
+        f"               AND ({por_grupo} OR (x.tipo = 'persona' AND x.valor = :email))) "
+        "ORDER BY m.orden, m.app_clave",
+        params,
+    )
+
+
 def ping() -> bool:
     try:
         _uno("SELECT 1 AS ok")

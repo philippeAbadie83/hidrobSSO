@@ -9,6 +9,7 @@ varias apps y la regla tiene un escalón más (la asignación explícita, que
 Costeo no tiene). Un SP por app terminaría duplicando la misma lógica.
 """
 import logging
+from datetime import date
 
 from app.services import db_permisos
 
@@ -154,6 +155,27 @@ def matriz(app_clave: str) -> dict:
 
 def asignacion_de(email: str, app_clave: str) -> dict | None:
     return db_permisos.get_asignacion(email, app_clave)
+
+
+# Una app cuya versión salió hace menos de esto lleva la insignia ACTUALIZADO.
+DIAS_ACTUALIZADO = 15
+
+
+def mosaicos_de(email: str, org_roles: list[str]) -> list[dict]:
+    """Los mosaicos del portal de esta persona, listos para dibujar.
+
+    La insignia ACTUALIZADO no se guarda: sale de version_fecha. Las demás
+    (NUEVO, PROTOTIPO) vienen de la tabla y mandan sobre la calculada.
+    """
+    hoy = date.today()
+    salida = []
+    for m in db_permisos.get_mosaicos(email, org_roles):
+        fecha = m.get("version_fecha")
+        if not m.get("insignia") and fecha and (hoy - fecha).days <= DIAS_ACTUALIZADO:
+            m["insignia"] = "ACTUALIZADO"
+        m["version_fecha"] = fecha.isoformat() if fecha else None
+        salida.append(m)
+    return salida
 
 
 def base_disponible() -> bool:
